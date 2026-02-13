@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:get/get.dart';
 import 'package:managementt/components/project_card.dart';
 import 'package:managementt/components/container_design.dart';
 
@@ -18,10 +17,7 @@ class AdminDashboard extends StatelessWidget {
             Spacer(),
             InkWell(
               onTap: () {
-                Get.snackbar(
-                  "Coming Soon",
-                  "We are currently working on this page",
-                );
+                
               },
               child: Container(
                 padding: EdgeInsets.all(8),
@@ -30,7 +26,7 @@ class AdminDashboard extends StatelessWidget {
                   color: Colors.blueGrey.withValues(alpha: 0.2),
                 ),
                 child: FaIcon(
-                  FontAwesomeIcons.bars,
+                  FontAwesomeIcons.plus,
                   color: Colors.white,
                   size: 18,
                 ),

@@ -71,9 +71,31 @@ class EmployeeManagementPage extends StatelessWidget {
                       IconButton(
                         icon: Icon(Icons.delete),
                         onPressed: () {
-                          if (member.id != null) {
-                            memberController.removeMember(member.id!);
-                          }
+                          Get.dialog(
+                            AlertDialog(
+                              title: Text("Confirm Remove"),
+                              content: Text(
+                                "Are you sure you want to remove ${member.name} ?",
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () {
+                                    Get.back();
+                                  },
+                                  child: Text("Cancel"),
+                                ),
+                                TextButton(
+                                  onPressed: () {
+                                    if (member.id != null) {
+                                      memberController.removeMember(member.id!);
+                                    }
+                                    Get.back();
+                                  },
+                                  child: Text("Delete"),
+                                ),
+                              ],
+                            ),
+                          );
                         },
                       ),
                     ],

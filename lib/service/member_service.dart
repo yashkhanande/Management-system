@@ -1,10 +1,11 @@
 import 'dart:convert';
 
+import 'package:managementt/config.dart';
 import 'package:managementt/model/member.dart';
 import 'package:http/http.dart' as http;
 
 class MemberService {
-  final String baseUrl = "http://localhost:8080/members";
+  final String baseUrl = "${Config.baseUrl}/members";
 
   Future<void> addMember(Member member) async {
     await http.post(

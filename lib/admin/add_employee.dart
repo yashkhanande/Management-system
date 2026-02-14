@@ -7,10 +7,10 @@ import 'package:managementt/model/member.dart';
 
 class AddEmployee extends StatelessWidget {
   final TextEditingController nameController = TextEditingController();
-  // final TextEditingController positionController = TextEditingController();
-  // final TextEditingController emailController = TextEditingController();
+  final roleController = ''.obs;
+  final TextEditingController emailController = TextEditingController();
   // final TextEditingController phoneController = TextEditingController();
-  final MemberController memberController = MemberController();
+  final MemberController memberController = Get.find<MemberController>();
 
   AddEmployee({super.key});
 
@@ -22,6 +22,8 @@ class AddEmployee extends StatelessWidget {
           "Add Employee",
           style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
         ),
+        centerTitle: false,
+        backgroundColor: Colors.transparent,
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -29,9 +31,36 @@ class AddEmployee extends StatelessWidget {
             padding: const EdgeInsets.all(8.0),
             child: Column(
               children: [
-                SizedBox(height: 20),
+                const SizedBox(height: 10),
                 AppTextfield(controller: nameController, label: "Name"),
-                SizedBox(height: 20),
+                const SizedBox(height: 10),
+                AppTextfield(controller: emailController, label: "Email"),
+                const SizedBox(height: 10),
+                Row(
+                  children: [
+                    const Spacer(),
+                    const Text(
+                      "Role",
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const Spacer(),
+                    DropdownMenu<String>(
+                      width: MediaQuery.widthOf(context) * 0.5,
+                      hintText: "Select employee role",
+                      dropdownMenuEntries: const [
+                        DropdownMenuEntry(value: "user", label: "User"),
+                        DropdownMenuEntry(value: "admin", label: "Admin"),
+                      ],
+                      onSelected: (value) {
+                        roleController.value = value ?? '';
+                      },
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
                 Obx(() {
                   return memberController.isLoading.value
                       ? const CircularProgressIndicator()
@@ -50,8 +79,8 @@ class AddEmployee extends StatelessWidget {
                             memberController.addMember(
                               Member(
                                 name: nameController.text,
-                                // position: positionController.text,
-                                // email: emailController.text,
+                                role: roleController.value,
+                                email: emailController.text,
                                 // phone: phoneController.text,
                                 tasks: [],
                               ),

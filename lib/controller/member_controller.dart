@@ -16,12 +16,14 @@ class MemberController extends GetxController {
   void addMember(Member member) async {
     isLoading.value = true;
     await _memberService.addMember(member);
-    isLoading.value = false;
     getMembers();
+    isLoading.value = false;
   }
 
   void getMembers() async {
+    isLoading.value = true;
     members.value = await _memberService.getMembers();
+    isLoading.value = false;
   }
 
   void removeMember(String id) async {

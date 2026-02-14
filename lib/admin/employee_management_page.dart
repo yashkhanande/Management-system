@@ -52,6 +52,9 @@ class EmployeeManagementPage extends StatelessWidget {
             if (memberController.members.isEmpty) {
               return Center(child: Text("No Members Found"));
             }
+            if (memberController.isLoading.value) {
+              return CircularProgressIndicator();
+            }
 
             return ListView.builder(
               itemCount: memberController.members.length,
@@ -60,7 +63,7 @@ class EmployeeManagementPage extends StatelessWidget {
 
                 return InkWell(
                   onTap: () {
-                    Get.to(() => EmployeeDetailsPage(),arguments: member);
+                    Get.to(() => EmployeeDetailsPage(), arguments: member);
                   },
                   child: ContainerDesign(
                     child: Row(

@@ -27,7 +27,11 @@ class EmployeeDetailsPage extends StatelessWidget {
                 ContainerDesign(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [Text("Employee details page")],
+                    children: [
+                      Text(member.email ?? ""),
+                      Text(member.role ?? ""),
+                      Text(member.email ?? ""),
+                    ],
                   ),
                 ),
               ],

@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:get/route_manager.dart';
+import 'package:get/state_manager.dart';
+import 'package:managementt/admin/employee_management_page.dart';
 import 'package:managementt/components/project_card.dart';
 import 'package:managementt/components/container_design.dart';
 
@@ -65,22 +68,6 @@ class AdminDashboard extends StatelessWidget {
                           ProjectCard(title: "ladddoo", status: "On schedule"),
                           ProjectCard(title: "Boondi", status: "late"),
                           ProjectCard(title: "Barfii"),
-                          ProjectCard(title: "ladddoo", status: "On schedule"),
-                          ProjectCard(title: "Boondi", status: "late"),
-                          ProjectCard(title: "Barfii"),
-                          ProjectCard(title: "ladddoo", status: "On schedule"),
-                          ProjectCard(title: "Boondi", status: "late"),
-                          ProjectCard(title: "Barfii"),
-
-                          ProjectCard(title: "ladddoo", status: "On schedule"),
-                          ProjectCard(title: "Boondi", status: "late"),
-                          ProjectCard(title: "Barfii"),
-                          ProjectCard(title: "ladddoo", status: "On schedule"),
-                          ProjectCard(title: "Boondi", status: "late"),
-                          ProjectCard(title: "Barfii"),
-                          ProjectCard(title: "ladddoo", status: "On schedule"),
-                          ProjectCard(title: "Boondi", status: "late"),
-                          ProjectCard(title: "Barfii"),
                         ],
                       ),
                     ],
@@ -90,6 +77,12 @@ class AdminDashboard extends StatelessWidget {
             ),
           ),
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Get.to(() => EmployeeManagementPage());
+        },
+        child: Icon(Icons.add),
       ),
     );
   }

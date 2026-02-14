@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:managementt/admin/employee_management_page.dart';
+import 'package:managementt/admin/admin_dashboard.dart';
 import 'package:managementt/components/app_colors.dart';
 
 void main() {
@@ -19,7 +19,8 @@ class MyApp extends StatelessWidget {
         scaffoldBackgroundColor: AppColors.background,
         brightness: Brightness.light,
       ),
-      home: EmployeeManagementPage(),
+      home: AdminDashboard(),
+      
     );
   }
 }

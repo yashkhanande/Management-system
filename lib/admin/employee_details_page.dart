@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:managementt/components/container_design.dart';
-import 'package:managementt/controller/task_controller.dart';
 import 'package:managementt/model/member.dart';
 
 class EmployeeDetailsPage extends StatelessWidget {

@@ -25,7 +25,7 @@ class Task {
       description: json['description'],
       priority: json['priority'],
       status: json['status'],
-      ownerId: json['ownerId'],
+      ownerId: json['ownerId'] ?? '',
       remark: json['remark'],
     );
   }

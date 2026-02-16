@@ -5,6 +5,7 @@ import 'package:managementt/service/member_service.dart';
 class MemberController extends GetxController {
   final MemberService _memberService = MemberService();
   var members = <Member>[].obs;
+  var owner = Rxn<Member>();
   var isLoading = false.obs;
   var tasks = <String>[].obs;
   @override
@@ -29,5 +30,19 @@ class MemberController extends GetxController {
   void removeMember(String id) async {
     await _memberService.removeMember(id);
     getMembers();
+  }
+
+  Future<void> getMemberById(String id) async {
+    try {
+      isLoading.value = true;
+      owner.value = await _memberService.getMemberById(id);
+    } catch (e) {
+      owner.value = null;
+      Future.microtask(() {
+        Get.snackbar("Error", e.toString());
+      });
+    } finally {
+      isLoading.value = false;
+    }
   }
 }

@@ -29,4 +29,15 @@ class MemberService {
   Future<void> removeMember(String id) async {
     await http.delete(Uri.parse("$baseUrl/delete/$id"));
   }
+
+  Future<Member> getMemberById(String id) async {
+    final response = await http.get(Uri.parse("$baseUrl/id/$id"));
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> data = jsonDecode(response.body);
+      return Member.fromJson(data);
+    } else {
+      throw Exception("Failed to load Member");
+    }
+  }
 }

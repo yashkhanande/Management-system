@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:managementt/admin/task_detail_page.dart';
 import 'package:managementt/components/container_design.dart';
 import 'package:managementt/components/project_card.dart';
 import 'package:managementt/controller/task_controller.dart';
@@ -70,7 +71,13 @@ class EmployeeDetailsPage extends StatelessWidget {
                                 physics: NeverScrollableScrollPhysics(),
                                 itemBuilder: (context, index) {
                                   final task = _taskController.ownerTask[index];
-                                  return ProjectCard(title: task.title);
+                                  return ProjectCard(
+                                    title: task.title,
+                                    onTap: () => Get.off(
+                                      () => TaskDetailPage(),
+                                      arguments: task,
+                                    ),
+                                  );
                                 },
                               );
                             }),

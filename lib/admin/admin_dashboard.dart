@@ -5,6 +5,7 @@ import 'package:get/route_manager.dart';
 import 'package:get/state_manager.dart';
 import 'package:managementt/admin/add_task.dart';
 import 'package:managementt/admin/employee_management_page.dart';
+import 'package:managementt/admin/task_detail_page.dart';
 import 'package:managementt/components/project_card.dart';
 import 'package:managementt/components/container_design.dart';
 import 'package:managementt/controller/member_controller.dart';
@@ -82,6 +83,10 @@ class AdminDashboard extends StatelessWidget {
                             return ProjectCard(
                               title: project.title,
                               status: project.status,
+                              onTap: () => Get.to(
+                                () => TaskDetailPage(),
+                                arguments: project,
+                              ),
                             );
                           },
                         );

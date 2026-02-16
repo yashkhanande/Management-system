@@ -23,7 +23,6 @@ class TaskController extends GetxController {
   Future<void> addTask(Task task) async {
     isLoading.value = true;
     await _taskService.addTask(task);
-    // getTaskByOwner(ownerId);
     isLoading.value = false;
   }
 

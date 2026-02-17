@@ -106,7 +106,9 @@ class addTask extends StatelessWidget {
                           text: "Add task",
                           onPressed: () async {
                             if (titleController.text.isEmpty ||
-                                descriptionController.text.isEmpty) {
+                                descriptionController.text.isEmpty ||
+                                memberController.value.isEmpty ||
+                                priorityController.value.isEmpty) {
                               Get.snackbar(
                                 "Error",
                                 "Please fill all fields",

@@ -1,13 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:managementt/admin/task_detail_page.dart';
 import 'package:managementt/components/container_design.dart';
+import 'package:managementt/components/project_card.dart';
+import 'package:managementt/controller/task_controller.dart';
 import 'package:managementt/model/member.dart';
 
 class EmployeeDetailsPage extends StatelessWidget {
-  const EmployeeDetailsPage({super.key});
+  EmployeeDetailsPage({super.key});
+  final TaskController _taskController = Get.find<TaskController>();
   @override
   Widget build(BuildContext context) {
     final Member member = Get.arguments;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _taskController.getTaskByOwner(member.id!);
+    });
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -43,19 +52,35 @@ class EmployeeDetailsPage extends StatelessWidget {
                               ),
                             ),
                             const SizedBox(height: 5),
-                            member.tasks.isNotEmpty
-                                ? ListView.builder(
-                                    itemCount: member.tasks.length,
-                                    itemBuilder: (context, index) {
-                                      final taskId = member.tasks[index];
-                                      // Here we have to fetch task so we can use task.title but idk how to get task from its id, we have taskId available and function is also created
-                                      // return ListTile(title: TaskController.getTaskById(task).title) //- this is not working, idk why
-                                      return ListTile(
-                                        title: Text(taskId),
-                                      ); // This is bugged, task is task's id (renamed task -> taskId)
-                                    },
-                                  )
-                                : Text("No task for ${member.name}"),
+                            Obx(() {
+                              if (_taskController.isLoading.value) {
+                                return const Center(
+                                  child: CircularProgressIndicator(),
+                                );
+                              }
+
+                              if (_taskController.ownerTask.isEmpty) {
+                                return Center(
+                                  child: Text("No task for ${member.name}"),
+                                );
+                              }
+
+                              return ListView.builder(
+                                itemCount: _taskController.ownerTask.length,
+                                shrinkWrap: true,
+                                physics: NeverScrollableScrollPhysics(),
+                                itemBuilder: (context, index) {
+                                  final task = _taskController.ownerTask[index];
+                                  return ProjectCard(
+                                    title: task.title,
+                                    onTap: () => Get.off(
+                                      () => TaskDetailPage(),
+                                      arguments: task,
+                                    ),
+                                  );
+                                },
+                              );
+                            }),
                           ],
                         ),
                       ),

@@ -24,8 +24,18 @@ class TaskService {
     }
   }
 
-  Future<List<Task>> getTaskByOwner(String Id) async {
-    final responce = await http.get(Uri.parse("$baseUrl/$Id/tasks"));
+  Future<List<Task>> getAllTask() async {
+    final responce = await http.get(Uri.parse("$baseUrl/AllTasks"));
+    if (responce.statusCode == 200) {
+      List data = jsonDecode(responce.body);
+      return data.map((e) => Task.fromJson(e)).toList();
+    } else {
+      throw Exception("Failed to load tasks");
+    }
+  }
+
+  Future<List<Task>> getTaskByOwner(String id) async {
+    final responce = await http.get(Uri.parse("$baseUrl/member/$id"));
     if (responce.statusCode == 200) {
       List data = jsonDecode(responce.body);
       return data.map((e) => Task.fromJson(e)).toList();

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:managementt/components/app_colors.dart';
 
 class ProjectCard extends StatelessWidget {
@@ -9,9 +10,7 @@ class ProjectCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () {
-        // Get.to(() => TaskDetail());
-      },
+      onTap: onTap,
       borderRadius: BorderRadius.circular(8),
       child: Container(
         margin: EdgeInsets.only(bottom: 5),

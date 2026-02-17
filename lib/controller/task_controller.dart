@@ -4,21 +4,31 @@ import 'package:managementt/service/task_service.dart';
 
 class TaskController extends GetxController {
   final TaskService _taskService = TaskService();
+
   var tasks = <Task>[].obs;
-  // Here have to pass owner's id somehow
-  // String ownerId = "";
+  var ownerTask = <Task>[].obs;
+  String? ownerId;
   var isLoading = false.obs;
 
   @override
   void onInit() {
-    // getTaskByOwner(ownerId);
+    
+    getAllTask();
     super.onInit();
+    if (ownerId != null) {
+      getTaskByOwner(ownerId!);
+    }
   }
 
   Future<void> addTask(Task task) async {
     isLoading.value = true;
     await _taskService.addTask(task);
-    // getTaskByOwner(ownerId);
+    isLoading.value = false;
+  }
+
+  Future<void> getAllTask() async {
+    isLoading.value = true;
+    tasks.value = await _taskService.getAllTask();
     isLoading.value = false;
   }
 
@@ -31,7 +41,7 @@ class TaskController extends GetxController {
 
   Future<void> getTaskByOwner(String id) async {
     isLoading.value = true;
-    tasks.value = await _taskService.getTaskByOwner(id);
+    ownerTask.value = await _taskService.getTaskByOwner(id);
     isLoading.value = false;
   }
 

@@ -7,16 +7,29 @@ import 'package:http/http.dart' as http;
 class MemberService {
   final String baseUrl = "${Config.baseUrl}/members";
 
+  String _basicAuth() {
+    String username = "yash"; // later you will take from login
+    String password = "1234";
+
+    return 'Basic ' + base64Encode(utf8.encode('$username:$password'));
+  }
+
   Future<void> addMember(Member member) async {
     await http.post(
       Uri.parse(baseUrl),
-      headers: {"Content-Type": "application/json"},
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": _basicAuth(),
+      },
       body: jsonEncode(member.toJson()),
     );
   }
 
   Future<List<Member>> getMembers() async {
-    final responce = await http.get(Uri.parse("$baseUrl/all"));
+    final responce = await http.get(
+      Uri.parse("$baseUrl/all"),
+     headers: {"Authorization": _basicAuth()},
+    );
 
     if (responce.statusCode == 200) {
       List data = jsonDecode(responce.body);
@@ -27,11 +40,17 @@ class MemberService {
   }
 
   Future<void> removeMember(String id) async {
-    await http.delete(Uri.parse("$baseUrl/delete/$id"));
+    await http.delete(
+      Uri.parse("$baseUrl/delete/$id"),
+      headers: {'Authorization': _basicAuth()},
+    );
   }
 
   Future<Member> getMemberById(String id) async {
-    final response = await http.get(Uri.parse("$baseUrl/id/$id"));
+    final response = await http.get(
+      Uri.parse("$baseUrl/id/$id"),
+      headers: {"Authorization": _basicAuth()},
+    );
 
     if (response.statusCode == 200) {
       final Map<String, dynamic> data = jsonDecode(response.body);

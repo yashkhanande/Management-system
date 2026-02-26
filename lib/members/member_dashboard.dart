@@ -5,7 +5,6 @@ class memberDashboard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // [71, 49, 224]
     return Scaffold(
       appBar: AppBar(
         toolbarHeight: 0,

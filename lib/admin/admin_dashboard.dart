@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:managementt/components/project_card.dart';
+import 'package:managementt/controller/auth_controller.dart';
 import 'dart:math' as math;
 // import 'package:managementt/controller/member_controller.dart';
 import 'package:managementt/controller/task_controller.dart';
-import 'package:managementt/model/task.dart';
 
 class AdminDashboard extends StatelessWidget {
-  const AdminDashboard({super.key});
+  final AuthController authController = Get.put(AuthController());
+  AdminDashboard({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -44,27 +46,45 @@ class AdminDashboard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      "Welcome back,",
-                      style: TextStyle(color: Colors.white, fontSize: 18),
+                    Row(
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Welcome back,",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                              ),
+                            ),
+                            Text(
+                              "Manthan Agrawal",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 25,
+                              ),
+                            ),
+                            Text(
+                              "Sunday, 22 Jan 2026",
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          ],
+                        ),
+                        Spacer(),
+                        IconButton(
+                          onPressed: () {
+                            authController.logout();
+                          },
+                          icon: Icon(Icons.logout, color: Colors.white),
+                        ),
+                      ],
                     ),
-                    Text(
-                      "Manthan Agrawal",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 25,
-                      ),
-                    ),
-                    Text(
-                      "Sunday, 22 Jan 2026",
-                      style: TextStyle(color: Colors.white),
-                    ),
+
                     Padding(padding: EdgeInsets.only(top: 20)),
-                    Wrap(
-                      alignment: WrapAlignment.spaceBetween,
-                      spacing: 10,
-                      runSpacing: 10,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Container(
                           height: 78,

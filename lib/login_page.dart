@@ -1,6 +1,13 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
+import 'package:managementt/admin/admin_dashboard.dart';
 import 'package:managementt/components/app_button.dart';
 import 'package:managementt/components/app_textfield.dart';
+import 'package:managementt/config.dart';
+import 'package:managementt/service/token_service.dart';
 
 class LoginPage extends StatelessWidget {
   LoginPage({super.key});
@@ -102,10 +109,28 @@ class LoginPage extends StatelessWidget {
                       AppButton(
                         text: "Login",
                         buttonColor: Color(0xFF2563EB),
+
                         onPressed: () async {
-                          print(
-                            "Login done  , userIdController.text ${userIdController.text}",
+                          final response = await http.post(
+                            Uri.parse("${Config.baseUrl}/auth/login"),
+                            headers: {"Content-Type": "application/json"},
+                            body: jsonEncode({
+                              "username": userIdController.text,
+                              "password": passwordController.text,
+                            }),
                           );
+
+                          if (response.statusCode == 200) {
+                            String token = response.body;
+
+                            await TokenService.saveToken(token);
+
+                            print("JWT: $token");
+
+                            Get.offAll(() => AdminDashboard());
+                          }else{
+                            print("nothing is happening ");
+                          }
                         },
                       ),
                     ],

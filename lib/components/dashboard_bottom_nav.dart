@@ -23,7 +23,7 @@ class DashboardBottomNav extends StatelessWidget {
     _NavItem(
       icon: Icons.people_outline_rounded,
       activeIcon: Icons.people_alt_rounded,
-      label: 'Team',
+      label: 'Employees',
     ),
     _NavItem(
       icon: Icons.bar_chart_outlined,

@@ -3,18 +3,23 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:managementt/admin/add_employee.dart';
 import 'package:managementt/admin/employee_details_page.dart';
+import 'package:managementt/components/animated_gradient_container.dart';
 import 'package:managementt/components/container_design.dart';
 import 'package:managementt/controller/member_controller.dart';
 
 class EmployeeDashboard extends StatelessWidget {
   EmployeeDashboard({super.key});
   final MemberController memberController = Get.put(MemberController());
-  int totalProjectCount = 10;
+  final int totalProjectCount = 10;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color.fromARGB(223, 57, 27, 255),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        flexibleSpace: AnimatedGradientContainer(
+          child: const SizedBox.expand(),
+        ),
         title: Row(
           children: [
             Text(
@@ -47,16 +52,15 @@ class EmployeeDashboard extends StatelessWidget {
       body: SafeArea(
         child: Column(
           children: [
-            Container(
+            AnimatedGradientContainer(
               padding: EdgeInsets.only(left: 20, right: 20),
               height: (MediaQuery.of(context).size.height / 9),
               width: MediaQuery.of(context).size.width,
-              color: Color.fromARGB(223, 57, 27, 255),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "${totalProjectCount} total projects",
+                    "$totalProjectCount total projects",
                     style: TextStyle(color: Colors.white),
                   ),
                   paddingOnly(bottom: 10),

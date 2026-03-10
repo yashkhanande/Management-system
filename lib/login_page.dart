@@ -1,8 +1,7 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:managementt/components/app_button.dart';
+import 'package:managementt/components/app_colors.dart';
 import 'package:managementt/components/app_textfield.dart';
 import 'package:managementt/controller/auth_controller.dart';
 import 'package:managementt/service/auth_service.dart';
@@ -34,7 +33,7 @@ class LoginPage extends StatelessWidget {
                         width: 60,
                         height: 60,
                         decoration: BoxDecoration(
-                          color: Color(0xFF2563EB),
+                          color: AppColors.primaryBlue,
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Icon(
@@ -67,7 +66,7 @@ class LoginPage extends StatelessWidget {
                     border: Border.all(color: Colors.grey[200]!, width: 1),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.03),
+                        color: Colors.black.withValues(alpha: 0.03),
                         spreadRadius: 0,
                         blurRadius: 10,
                         offset: Offset(0, 4),
@@ -111,7 +110,7 @@ class LoginPage extends StatelessWidget {
                             ? const Center(child: CircularProgressIndicator())
                             : AppButton(
                                 text: "Login",
-                                buttonColor: Color(0xFF2563EB),
+                                buttonColor: AppColors.primaryBlue,
                                 onPressed: () async {
                                   final email = userIdController.text.trim();
                                   final password = passwordController.text

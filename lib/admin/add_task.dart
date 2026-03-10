@@ -6,7 +6,7 @@ import 'package:managementt/controller/member_controller.dart';
 import 'package:managementt/controller/task_controller.dart';
 import 'package:managementt/model/task.dart';
 
-class addTask extends StatelessWidget {
+class AddTask extends StatelessWidget {
   final TextEditingController titleController = TextEditingController();
   final priorityController = ''.obs;
   final memberController = ''.obs;
@@ -14,7 +14,7 @@ class addTask extends StatelessWidget {
   final TaskController _taskController = Get.find<TaskController>();
   final MemberController _memberController = Get.find<MemberController>();
 
-  addTask({super.key});
+  AddTask({super.key});
 
   @override
   Widget build(BuildContext context) {

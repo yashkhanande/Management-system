@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:managementt/controller/admin_nav_controller.dart';
+import 'package:managementt/controller/auth_controller.dart';
 import 'package:managementt/controller/profile_controller.dart';
 
 class MemberProfilePage extends StatefulWidget {
@@ -17,6 +18,7 @@ class _MemberProfilePageState extends State<MemberProfilePage>
   @override
   Widget build(BuildContext context) {
     final pc = Get.find<ProfileController>();
+    final ac = Get.find<AuthController>();
     final topPad = MediaQuery.of(context).padding.top;
     return Scaffold(
       backgroundColor: const Color(0xFFF5F6FA),
@@ -120,16 +122,21 @@ class _MemberProfilePageState extends State<MemberProfilePage>
                             ),
                           ),
                         ),
-                        Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.15),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: const Icon(
-                            Icons.more_horiz_rounded,
-                            size: 20,
-                            color: Colors.white,
+                        InkWell(
+                          onTap: () {
+                            ac.logout();
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.15),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: const Icon(
+                              Icons.logout,
+                              size: 20,
+                              color: Colors.white,
+                            ),
                           ),
                         ),
                       ],

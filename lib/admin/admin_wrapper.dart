@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:managementt/admin/analytics.dart';
 import 'package:managementt/admin/employee_dashboard.dart';
-import 'package:managementt/admin/main_dashboard.dart';
+import 'package:managementt/admin/admin_dashboard.dart';
 import 'package:managementt/admin/project_dashboard.dart';
 import 'package:managementt/components/dashboard_bottom_nav.dart';
 import 'package:managementt/controller/admin_nav_controller.dart';

@@ -213,7 +213,7 @@ class _AddTaskState extends State<AddTask> with TickerProviderStateMixin {
                             "Create\nNew Task",
                             style: TextStyle(
                               color: Colors.white,
-                              fontSize: 32,
+                              fontSize: 28,
                               fontWeight: FontWeight.w700,
                               height: 1.15,
                               letterSpacing: -0.5,

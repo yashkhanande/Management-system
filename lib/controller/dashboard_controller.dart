@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:managementt/components/app_colors.dart';
+import 'package:managementt/components/date_time_helper.dart';
 import 'package:managementt/controller/auth_controller.dart';
 import 'package:managementt/model/activity.dart';
 import 'package:managementt/model/dashboard_models.dart';
@@ -42,16 +43,40 @@ class DashboardController extends GetxController {
   Future<void> loadDashboard() async {
     isLoading.value = true;
     try {
-      final results = await Future.wait([
-        _taskService.getTasksByType('PROJECT'),
-        _taskService.getTasksByType('TASK'),
-        _activityService.getActivities(),
-        _memberService.getMembers(),
-      ]);
-      projects.value = results[0] as List<Task>;
-      tasks.value = results[1] as List<Task>;
-      activities.value = results[2] as List<Activity>;
-      members.value = results[3] as List<Member>;
+      // Keep dashboard useful even if one backend endpoint fails.
+      List<Task> loadedProjects = const [];
+      List<Task> loadedTasks = const [];
+      List<Activity> loadedActivities = const [];
+      List<Member> loadedMembers = const [];
+
+      try {
+        loadedProjects = await _taskService.getTasksByType('PROJECT');
+      } catch (e) {
+        print('DashboardController: Failed to load projects — $e');
+      }
+
+      try {
+        loadedTasks = await _taskService.getTasksByType('TASK');
+      } catch (e) {
+        print('DashboardController: Failed to load tasks — $e');
+      }
+
+      try {
+        loadedActivities = await _activityService.getActivities();
+      } catch (e) {
+        print('DashboardController: Failed to load activities — $e');
+      }
+
+      try {
+        loadedMembers = await _memberService.getMembers();
+      } catch (e) {
+        print('DashboardController: Failed to load members — $e');
+      }
+
+      projects.value = loadedProjects;
+      tasks.value = loadedTasks;
+      activities.value = loadedActivities;
+      members.value = loadedMembers;
 
       final username = AuthController.to.username.value;
       if (username.isNotEmpty) {
@@ -110,9 +135,17 @@ class DashboardController extends GetxController {
   // ── Header info ──
 
   String get welcomeName {
-    if (currentMember.value != null) return currentMember.value!.name;
+    if (currentMember.value != null) {
+      final fullName = currentMember.value!.name.trim();
+      if (fullName.isNotEmpty) {
+        return fullName.split(RegExp(r'\s+')).first;
+      }
+    }
     final username = AuthController.to.username.value;
-    if (username.isNotEmpty) return username;
+    if (username.isNotEmpty) {
+      final beforeAt = username.split('@').first.trim();
+      if (beforeAt.isNotEmpty) return beforeAt;
+    }
     return 'Admin';
   }
 
@@ -170,25 +203,12 @@ class DashboardController extends GetxController {
 
   String formatDeadline(DateTime? deadline) {
     if (deadline == null) return '';
-    final today = DateTime(
-      DateTime.now().year,
-      DateTime.now().month,
-      DateTime.now().day,
-    );
-    final diff = deadline.difference(today).inDays;
-    if (diff > 0) return '${diff}d left';
-    if (diff < 0) return '${-diff}d over';
-    return 'Today';
+    return DateTimeHelper.remainingDaysLabel(deadline);
   }
 
   Color deadlineColor(DateTime? deadline) {
     if (deadline == null) return AppColors.warning;
-    final today = DateTime(
-      DateTime.now().year,
-      DateTime.now().month,
-      DateTime.now().day,
-    );
-    final diff = deadline.difference(today).inDays;
+    final diff = DateTimeHelper.remainingDays(deadline);
     if (diff < 0) return AppColors.error;
     if (diff <= 7) return AppColors.warning;
     return AppColors.success;
@@ -208,28 +228,26 @@ class DashboardController extends GetxController {
   // ── Dashboard section data ──
 
   List<AlertItem> get criticalAlerts {
-    final overdueItems = allItems.where((t) => t.status == 'OVERDUE').toList();
-    if (overdueItems.isEmpty) return [];
+    const thresholdDays = 7;
+    final today = DateTime(
+      DateTime.now().year,
+      DateTime.now().month,
+      DateTime.now().day,
+    );
+
     final alerts = <AlertItem>[];
-    for (final p in projects.where((p) => p.status == 'OVERDUE')) {
-      if (p.deadLine != null) {
-        final today = DateTime(
-          DateTime.now().year,
-          DateTime.now().month,
-          DateTime.now().day,
-        );
-        final daysOver = today.difference(p.deadLine!).inDays;
-        alerts.add(
-          AlertItem(title: p.title, subtitle: '${daysOver}d past deadline'),
-        );
+    for (final p in projects.where((p) => p.deadLine != null)) {
+      final remaining = p.deadLine!.difference(today).inDays;
+      if (remaining <= thresholdDays) {
+        final subtitle = remaining < 0
+            ? '${-remaining}d past deadline'
+            : remaining == 0
+            ? 'Due today'
+            : '$remaining d remaining';
+        alerts.add(AlertItem(title: p.title, subtitle: subtitle));
       }
     }
-    alerts.add(
-      AlertItem(
-        title: '${overdueItems.length} tasks overdue',
-        subtitle: 'Tap to view and resolve',
-      ),
-    );
+    alerts.sort((a, b) => a.subtitle.compareTo(b.subtitle));
     return alerts;
   }
 
@@ -240,11 +258,11 @@ class DashboardController extends GetxController {
       DateTime.now().day,
     );
     final withDeadlines = projects.where((p) => p.deadLine != null).toList();
-    // Sort by remaining days descending (most remaining first)
+    // Least remaining days first
     withDeadlines.sort((a, b) {
       final remainA = a.deadLine!.difference(today).inDays;
       final remainB = b.deadLine!.difference(today).inDays;
-      return remainB.compareTo(remainA);
+      return remainA.compareTo(remainB);
     });
     return withDeadlines.take(5).map((p) {
       final ownerName = getMemberName(p.ownerId);

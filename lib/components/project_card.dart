@@ -100,7 +100,7 @@ class ProjectCard extends StatelessWidget {
                     child: Text(
                       dueText!,
                       style: const TextStyle(
-                        fontSize: 9,
+                        fontSize: 10,
                         color: Color(0xFFFF4D57),
                         fontWeight: FontWeight.w700,
                       ),
@@ -143,7 +143,7 @@ class ProjectCard extends StatelessWidget {
                                       : visibleMembers[index][0].toUpperCase(),
                                   style: const TextStyle(
                                     color: Colors.white,
-                                    fontSize: 8,
+                                    fontSize: 10,
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),

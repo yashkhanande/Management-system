@@ -6,7 +6,12 @@ class MemberService {
   final ApiService _api = ApiService();
 
   Future<void> addMember(Member member) async {
-    await _api.post('/members', body: member.toJson());
+    final response = await _api.post('/members', body: member.toJson());
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw Exception(
+        response.body.isNotEmpty ? response.body : 'Failed to add member',
+      );
+    }
   }
 
   Future<List<Member>> getMembers() async {
@@ -20,7 +25,12 @@ class MemberService {
   }
 
   Future<void> removeMember(String id) async {
-    await _api.delete('/members/delete/$id');
+    final response = await _api.delete('/members/delete/$id');
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw Exception(
+        response.body.isNotEmpty ? response.body : 'Failed to remove member',
+      );
+    }
   }
 
   Future<Member> getMemberById(String id) async {

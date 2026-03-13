@@ -32,6 +32,9 @@ class Task {
   });
 
   factory Task.fromJson(Map<String, dynamic> json) {
+    final rawDeadline = json['deadLine'] ?? json['deadline'];
+    final rawStartDate = json['startDate'] ?? json['start_date'];
+
     return Task(
       id: json['id'],
       title: json['title'] ?? '',
@@ -43,11 +46,11 @@ class Task {
       parentTaskId: json['parentTaskId'],
       progress: json['progress'] ?? 0,
       remark: json['remark'],
-      deadLine: json['deadLine'] != null
-          ? DateTime.tryParse(json['deadLine'].toString())
+      deadLine: rawDeadline != null
+          ? DateTime.tryParse(rawDeadline.toString())
           : null,
-      startDate: json['startDate'] != null
-          ? DateTime.tryParse(json['startDate'].toString())
+      startDate: rawStartDate != null
+          ? DateTime.tryParse(rawStartDate.toString())
           : null,
       remainingTask: json['remainingTask'] ?? 0,
       completedTask: json['completedTask'] ?? 0,
@@ -55,6 +58,9 @@ class Task {
   }
 
   Map<String, dynamic> toJson() {
+    final deadlineValue = deadLine?.toIso8601String().split('T').first;
+    final startDateValue = startDate?.toIso8601String().split('T').first;
+
     return {
       "id": id,
       "title": title,
@@ -66,8 +72,10 @@ class Task {
       "parentTaskId": parentTaskId,
       "progress": progress,
       "remark": remark,
-      "deadLine": deadLine?.toIso8601String().split('T').first,
-      "startDate": startDate?.toIso8601String().split('T').first,
+      // Send both keys to stay compatible with current and legacy backend field names.
+      "deadline": deadlineValue,
+      "deadLine": deadlineValue,
+      "startDate": startDateValue,
       "remainingTask": remainingTask,
       "completedTask": completedTask,
     };

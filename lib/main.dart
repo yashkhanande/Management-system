@@ -34,8 +34,21 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Management System',
       theme: ThemeData(
+        useMaterial3: true,
         scaffoldBackgroundColor: AppColors.background,
         brightness: Brightness.light,
+        textTheme: const TextTheme(
+          headlineLarge: TextStyle(fontSize: 28, fontWeight: FontWeight.w700),
+          headlineMedium: TextStyle(fontSize: 24, fontWeight: FontWeight.w700),
+          titleLarge: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+          titleMedium: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+          titleSmall: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+          bodyLarge: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+          bodyMedium: TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
+          bodySmall: TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
+          labelLarge: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+          labelMedium: TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
+        ),
       ),
       home: SplashScreen(),
     );

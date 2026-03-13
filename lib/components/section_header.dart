@@ -25,7 +25,7 @@ class SectionHeader extends StatelessWidget {
             style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
           const Spacer(),
-          ?trailing,
+          if (trailing != null) trailing!,
           if (actionText != null)
             TextButton(onPressed: onAction, child: Text("$actionText >")),
         ],

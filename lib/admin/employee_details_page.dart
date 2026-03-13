@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:managementt/admin/task_detail_page.dart';
+import 'package:managementt/admin/project_detail_page.dart';
 import 'package:managementt/components/app_colors.dart';
 import 'package:managementt/controller/task_controller.dart';
 import 'package:managementt/model/member.dart';
@@ -243,6 +243,12 @@ class EmployeeDetailsPage extends StatelessWidget {
                         (p) => _OwnedItemTile(
                           item: p,
                           deadline: _deadlineLabel(p.deadLine),
+                          onTap: () => Get.to(
+                            () => ProjectDetailPage(
+                              project: p,
+                              projectMemberNames: [member.name],
+                            ),
+                          ),
                         ),
                       ),
                     const SizedBox(height: 18),
@@ -268,6 +274,22 @@ class EmployeeDetailsPage extends StatelessWidget {
                         (t) => _OwnedItemTile(
                           item: t,
                           deadline: _deadlineLabel(t.deadLine),
+                          onTap: () {
+                            final parent = _taskController.tasks
+                                .firstWhereOrNull(
+                                  (candidate) =>
+                                      candidate.id == t.parentTaskId &&
+                                      (candidate.type ?? '').toUpperCase() ==
+                                          'PROJECT',
+                                );
+                            if (parent == null) return;
+                            Get.to(
+                              () => ProjectDetailPage(
+                                project: parent,
+                                projectMemberNames: [member.name],
+                              ),
+                            );
+                          },
                         ),
                       ),
                     const SizedBox(height: 18),
@@ -378,8 +400,13 @@ class _InfoTile extends StatelessWidget {
 class _OwnedItemTile extends StatelessWidget {
   final Task item;
   final String deadline;
+  final VoidCallback? onTap;
 
-  const _OwnedItemTile({required this.item, required this.deadline});
+  const _OwnedItemTile({
+    required this.item,
+    required this.deadline,
+    this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -388,7 +415,7 @@ class _OwnedItemTile extends StatelessWidget {
       status: item.status,
     );
     return InkWell(
-      onTap: () => Get.to(() => TaskDetailPage(), arguments: item),
+      onTap: onTap,
       borderRadius: BorderRadius.circular(12),
       child: Container(
         margin: const EdgeInsets.only(bottom: 8),

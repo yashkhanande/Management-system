@@ -6,7 +6,12 @@ class TaskService {
   final ApiService _api = ApiService();
 
   Future<void> addTask(Task task) async {
-    await _api.post('/tasks/add', body: task.toJson());
+    final response = await _api.post('/tasks/add', body: task.toJson());
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw Exception(
+        response.body.isNotEmpty ? response.body : 'Failed to add task',
+      );
+    }
   }
 
   Future<Task> getTaskById(String id) async {
@@ -49,11 +54,24 @@ class TaskService {
   }
 
   Future<void> updateTask(String id, Task newTask) async {
-    await _api.put('/tasks/update/$id', body: newTask.toJson());
+    final response = await _api.put(
+      '/tasks/update/$id',
+      body: newTask.toJson(),
+    );
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw Exception(
+        response.body.isNotEmpty ? response.body : 'Failed to update task',
+      );
+    }
   }
 
   Future<void> deleteTask(String id) async {
-    await _api.delete('/tasks/delete/$id');
+    final response = await _api.delete('/tasks/delete/$id');
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw Exception(
+        response.body.isNotEmpty ? response.body : 'Failed to delete task',
+      );
+    }
   }
 
   /// Get total count of tasks by type.

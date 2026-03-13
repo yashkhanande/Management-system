@@ -219,7 +219,7 @@ class _RegisterEmployeesState extends State<RegisterEmployees>
                             "Register\nNew Employee",
                             style: TextStyle(
                               color: Colors.white,
-                              fontSize: 32,
+                              fontSize: 28,
                               fontWeight: FontWeight.w700,
                               height: 1.15,
                               letterSpacing: -0.5,

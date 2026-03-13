@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:managementt/admin/add_task.dart';
-import 'package:managementt/admin/employee_details_page.dart';
+import 'package:managementt/admin/project_detail_page.dart';
 import 'package:managementt/components/animated_gradient_container.dart';
 import 'package:managementt/components/container_design.dart';
 import 'package:managementt/controller/task_controller.dart';
@@ -110,7 +110,7 @@ class ProjectDashboard extends StatelessWidget {
 
                   return InkWell(
                     onTap: () {
-                      Get.to(() => EmployeeDetailsPage(), arguments: task);
+                      Get.to(() => ProjectDetailPage(project: task));
                     },
                     child: ContainerDesign(
                       child: Row(

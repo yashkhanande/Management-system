@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:managementt/admin/add_task.dart';
 import 'package:managementt/components/app_colors.dart';
+import 'package:managementt/components/date_time_helper.dart';
+import 'package:managementt/controller/member_controller.dart';
 import 'package:managementt/controller/task_controller.dart';
 import 'package:managementt/model/task.dart';
 
@@ -21,7 +23,17 @@ class ProjectDetailPage extends StatefulWidget {
 
 class _ProjectDetailPageState extends State<ProjectDetailPage> {
   final TaskController _taskController = Get.find<TaskController>();
+  final MemberController _memberController = Get.find<MemberController>();
   final RxString _selectedFilter = 'ALL'.obs;
+
+  @override
+  void initState() {
+    super.initState();
+    if (_memberController.members.isEmpty &&
+        !_memberController.isLoading.value) {
+      _memberController.getMembers();
+    }
+  }
 
   List<Task> get _projectTasks {
     final parentId = widget.project.id;
@@ -96,17 +108,7 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
   }
 
   String _deadlineText(DateTime? d) {
-    if (d == null) return '-';
-    final today = DateTime(
-      DateTime.now().year,
-      DateTime.now().month,
-      DateTime.now().day,
-    );
-    final target = DateTime(d.year, d.month, d.day);
-    final diff = target.difference(today).inDays;
-    if (diff < 0) return '${-diff}d overdue';
-    if (diff == 0) return 'Today';
-    return '${d.month}/${d.day}/${d.year}';
+    return DateTimeHelper.remainingDaysLabel(d);
   }
 
   String _dateShort(DateTime? d) {
@@ -135,20 +137,53 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
     return clean.substring(0, 2).toUpperCase();
   }
 
+  String _memberNameById(String ownerId) {
+    final match = _memberController.members.firstWhereOrNull(
+      (m) => m.id == ownerId,
+    );
+    final name = match?.name.trim() ?? '';
+    return name.isEmpty ? ownerId : name;
+  }
+
+  List<String> _projectMembers(List<Task> tasks) {
+    final result = <String>[];
+
+    for (final name in widget.projectMemberNames) {
+      final n = name.trim();
+      if (n.isNotEmpty && !result.contains(n)) {
+        result.add(n);
+      }
+    }
+
+    final projectOwner = _memberNameById(widget.project.ownerId);
+    if (projectOwner.isNotEmpty && !result.contains(projectOwner)) {
+      result.add(projectOwner);
+    }
+
+    for (final t in tasks) {
+      final ownerName = _memberNameById(t.ownerId);
+      if (ownerName.isNotEmpty && !result.contains(ownerName)) {
+        result.add(ownerName);
+      }
+    }
+
+    return result;
+  }
+
   @override
   Widget build(BuildContext context) {
     final topPad = MediaQuery.of(context).padding.top;
     final project = widget.project;
-    final progress = (project.progress / 100).clamp(0.0, 1.0);
-
-    final members = widget.projectMemberNames.isNotEmpty
-        ? widget.projectMemberNames
-        : [project.ownerId];
+    final remainingTimeProgress = DateTimeHelper.remainingTimeRatio(
+      project.startDate,
+      project.deadLine,
+    );
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF3F4F6),
+      backgroundColor: const Color(0xFFF8FAFC),
       body: Obx(() {
         final tasks = _projectTasks;
+        final members = _projectMembers(tasks);
         final doneCount = _countFor('DONE');
         final todoCount = _countFor('TODO');
         final inProgressCount = _countFor('IN_PROGRESS');
@@ -163,12 +198,23 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
               Container(
                 width: double.infinity,
                 padding: EdgeInsets.fromLTRB(16, topPad + 12, 16, 22),
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [Color(0xFF6366F1), Color(0xFF3B5BEE)],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
+                  borderRadius: const BorderRadius.only(
+                    bottomLeft: Radius.circular(24),
+                    bottomRight: Radius.circular(24),
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.08),
+                      blurRadius: 16,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -203,7 +249,7 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
                                 overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
                                   color: Colors.white.withValues(alpha: 0.85),
-                                  fontSize: 15,
+                                  fontSize: 13,
                                   fontWeight: FontWeight.w500,
                                 ),
                               ),
@@ -214,7 +260,7 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
                                 overflow: TextOverflow.ellipsis,
                                 style: const TextStyle(
                                   color: Colors.white,
-                                  fontSize: 31,
+                                  fontSize: 24,
                                   height: 1.02,
                                   fontWeight: FontWeight.w700,
                                 ),
@@ -273,7 +319,7 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
                             borderRadius: BorderRadius.circular(999),
                             child: LinearProgressIndicator(
                               minHeight: 10,
-                              value: progress,
+                              value: remainingTimeProgress,
                               backgroundColor: Colors.white.withValues(
                                 alpha: 0.35,
                               ),
@@ -286,18 +332,18 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
                           Row(
                             children: [
                               Text(
-                                'Progress',
+                                'Time Remaining',
                                 style: TextStyle(
                                   color: Colors.white.withValues(alpha: 0.88),
                                 ),
                               ),
                               const Spacer(),
                               Text(
-                                '${project.progress}%',
+                                '${(remainingTimeProgress * 100).toStringAsFixed(0)}%',
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.w700,
-                                  fontSize: 20,
+                                  fontSize: 18,
                                 ),
                               ),
                             ],
@@ -346,70 +392,85 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
               ),
               Container(
                 width: double.infinity,
-                color: const Color(0xFFF3F4F6),
-                padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
+                color: const Color(0xFFF8FAFC),
+                padding: const EdgeInsets.fromLTRB(16, 14, 16, 0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'Project Members',
-                      style: TextStyle(
-                        fontSize: 21,
-                        fontWeight: FontWeight.w700,
-                        color: Color(0xFF1F2937),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.fromLTRB(14, 14, 14, 12),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(color: const Color(0xFFE5E7EB)),
                       ),
-                    ),
-                    const SizedBox(height: 12),
-                    Wrap(
-                      spacing: 14,
-                      runSpacing: 12,
-                      children: members
-                          .map(
-                            (name) => SizedBox(
-                              width: 58,
-                              child: Column(
-                                children: [
-                                  Container(
-                                    width: 42,
-                                    height: 42,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color:
-                                          Colors.primaries[name.hashCode.abs() %
-                                              Colors.primaries.length],
-                                    ),
-                                    child: Center(
-                                      child: Text(
-                                        _memberShort(name),
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.w700,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(height: 6),
-                                  Text(
-                                    name,
-                                    textAlign: TextAlign.center,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: const TextStyle(
-                                      color: Color(0xFF374151),
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                ],
-                              ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Project Members',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w700,
+                              color: Color(0xFF1F2937),
                             ),
-                          )
-                          .toList(),
+                          ),
+                          const SizedBox(height: 12),
+                          Wrap(
+                            spacing: 14,
+                            runSpacing: 12,
+                            children: members
+                                .map(
+                                  (name) => SizedBox(
+                                    width: 58,
+                                    child: Column(
+                                      children: [
+                                        Container(
+                                          width: 42,
+                                          height: 42,
+                                          decoration: BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            color:
+                                                Colors.primaries[name.hashCode
+                                                        .abs() %
+                                                    Colors.primaries.length],
+                                          ),
+                                          child: Center(
+                                            child: Text(
+                                              _memberShort(name),
+                                              style: const TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.w700,
+                                                fontSize: 12,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(height: 6),
+                                        Text(
+                                          name,
+                                          textAlign: TextAlign.center,
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: const TextStyle(
+                                            color: Color(0xFF374151),
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                )
+                                .toList(),
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
               ),
-              Container(height: 1, color: const Color(0xFFE5E7EB)),
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 14, 16, 10),
                 child: Row(
@@ -417,7 +478,7 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
                     const Text(
                       'Tasks',
                       style: TextStyle(
-                        fontSize: 34,
+                        fontSize: 22,
                         fontWeight: FontWeight.w800,
                         height: 1,
                       ),
@@ -549,14 +610,14 @@ class _SummaryCard extends StatelessWidget {
       ),
       child: Column(
         children: [
-          Icon(icon, color: Colors.white.withValues(alpha: 0.9), size: 18),
+          Icon(icon, color: Colors.white.withValues(alpha: 0.9), size: 16),
           const SizedBox(height: 4),
           Text(
             '$count',
             style: const TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.w800,
-              fontSize: 24,
+              fontSize: 20,
               height: 1,
             ),
           ),
@@ -606,7 +667,7 @@ class _FilterChip extends StatelessWidget {
         child: Text(
           '$label $count',
           style: TextStyle(
-            fontSize: 14,
+            fontSize: 13,
             fontWeight: FontWeight.w600,
             color: selected ? Colors.white : const Color(0xFF6B7280),
           ),
@@ -660,9 +721,20 @@ class _TaskCard extends StatelessWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(
-                  isDone ? Icons.check_circle : Icons.radio_button_unchecked,
-                  color: isDone ? AppColors.completed : const Color(0xFF94A3B8),
+                Container(
+                  width: 28,
+                  height: 28,
+                  decoration: BoxDecoration(
+                    color: (isDone ? AppColors.completed : strip).withValues(
+                      alpha: 0.12,
+                    ),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    isDone ? Icons.check : Icons.pending_outlined,
+                    size: 16,
+                    color: isDone ? AppColors.completed : strip,
+                  ),
                 ),
                 const SizedBox(width: 10),
                 Expanded(
@@ -674,7 +746,7 @@ class _TaskCard extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
-                          fontSize: 22,
+                          fontSize: 16,
                           fontWeight: FontWeight.w700,
                           color: const Color(0xFF1F2937),
                           decoration: isDone
@@ -691,7 +763,7 @@ class _TaskCard extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
                           color: Color(0xFF64748B),
-                          fontSize: 18,
+                          fontSize: 13,
                           height: 1.25,
                         ),
                       ),

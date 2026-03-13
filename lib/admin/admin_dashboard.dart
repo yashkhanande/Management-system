@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:managementt/admin/project_dashboard.dart';
 import 'package:managementt/admin/project_detail_page.dart';
 import 'package:managementt/components/app_colors.dart';
 import 'package:managementt/components/dashboard_tiles.dart';
@@ -7,6 +8,7 @@ import 'package:managementt/components/donut_chart.dart';
 import 'package:managementt/components/project_card.dart';
 import 'package:managementt/components/section_header.dart';
 import 'package:managementt/components/stat_card.dart';
+import 'package:managementt/controller/admin_nav_controller.dart';
 import 'package:managementt/controller/dashboard_controller.dart';
 
 class AdminDashboard extends StatelessWidget {
@@ -350,12 +352,19 @@ class AdminDashboard extends StatelessWidget {
                 ),
               ),
 
-              const SectionHeader(
+              SectionHeader(
                 title: 'Active Projects',
                 actionText: 'See all',
+                onAction: () {
+                  if (Get.isRegistered<AdminNavController>()) {
+                    Get.find<AdminNavController>().changePage(1);
+                    return;
+                  }
+                  Get.to(() => ProjectDashboard());
+                },
               ),
 
-              ...List.generate(dc.projects.length, (i) {
+              ...List.generate(dc.projects.take(5).length, (i) {
                 final project = dc.projects[i];
                 final totalSub = project.completedTask + project.remainingTask;
 
@@ -382,6 +391,66 @@ class AdminDashboard extends StatelessWidget {
                   ),
                 );
               }),
+
+              const SizedBox(height: 10),
+
+              const SectionHeader(title: 'Upcoming Deadlines'),
+
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                child: Card(
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    side: BorderSide(
+                      color: AppColors.divider.withValues(alpha: 0.9),
+                    ),
+                  ),
+                  child: upcomingDeadlines.isEmpty
+                      ? const Padding(
+                          padding: EdgeInsets.all(14),
+                          child: Text(
+                            'No upcoming deadlines',
+                            style: TextStyle(color: AppColors.textSecondary),
+                          ),
+                        )
+                      : Column(
+                          children: upcomingDeadlines
+                              .map((item) => DeadlineTile(item: item))
+                              .toList(),
+                        ),
+                ),
+              ),
+
+              const SizedBox(height: 10),
+
+              const SectionHeader(title: 'Activity Log'),
+
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                child: Card(
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    side: BorderSide(
+                      color: AppColors.divider.withValues(alpha: 0.9),
+                    ),
+                  ),
+                  child: recentActivity.isEmpty
+                      ? const Padding(
+                          padding: EdgeInsets.all(14),
+                          child: Text(
+                            'No team activity yet',
+                            style: TextStyle(color: AppColors.textSecondary),
+                          ),
+                        )
+                      : Column(
+                          children: recentActivity
+                              .map((item) => ActivityTile(item: item))
+                              .toList(),
+                        ),
+                ),
+              ),
 
               const SizedBox(height: 100),
             ],

@@ -636,6 +636,7 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
                           (t) => _TaskCard(
                             task: t,
                             deadlineText: _deadlineText(t.deadLine),
+                            ownerName: _memberNameById(t.ownerId),
                           ),
                         )
                         .toList(),
@@ -741,8 +742,13 @@ class _FilterChip extends StatelessWidget {
 class _TaskCard extends StatelessWidget {
   final Task task;
   final String deadlineText;
+  final String ownerName;
 
-  const _TaskCard({required this.task, required this.deadlineText});
+  const _TaskCard({
+    required this.task,
+    required this.deadlineText,
+    required this.ownerName,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -833,6 +839,12 @@ class _TaskCard extends StatelessWidget {
                         spacing: 8,
                         runSpacing: 8,
                         children: [
+                          _Badge(
+                            text: ownerName,
+                            bg: const Color(0xFFE8F5E9),
+                            fg: const Color(0xFF2E7D32),
+                            icon: Icons.person_rounded,
+                          ),
                           _Badge(
                             text: isDone ? 'Done' : _statusLabel(task.status),
                             bg: (isDone ? AppColors.completed : strip)

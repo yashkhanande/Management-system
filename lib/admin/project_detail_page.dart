@@ -107,6 +107,8 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
           return status == 'IN_PROGRESS';
         case 'REVIEW':
           return status == 'REVIEW';
+        case 'OVERDUE':
+          return status == 'OVERDUE';
         case 'DONE':
           return status == 'DONE' || status == 'COMPLETED';
         default:
@@ -142,6 +144,10 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
       case 'REVIEW':
         return all
             .where((t) => (t.status ?? '').toUpperCase() == 'REVIEW')
+            .length;
+      case 'OVERDUE':
+        return all
+            .where((t) => (t.status ?? '').toUpperCase() == 'OVERDUE')
             .length;
       case 'DONE':
         return all
@@ -188,6 +194,16 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
       'Dec',
     ];
     return '${months[d.month - 1]} ${d.day}, ${d.year}';
+  }
+
+  Color _remainingTimeColor(int daysLeft) {
+    if (daysLeft <= 10) {
+      return AppColors.error;
+    }
+    if (daysLeft <= 25) {
+      return AppColors.warning;
+    }
+    return AppColors.success;
   }
 
   String _memberShort(String name) {
@@ -238,6 +254,8 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
       project.startDate,
       project.deadLine,
     );
+    final remainingDays = DateTimeHelper.remainingDays(project.deadLine);
+    final timeRemainingColor = _remainingTimeColor(remainingDays);
     final projectProgress = (project.progress / 100).clamp(0.0, 1.0);
 
     return Scaffold(
@@ -459,10 +477,7 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
                                 alpha: 0.2,
                               ),
                               valueColor: AlwaysStoppedAnimation<Color>(
-                                AppColors.stripColor(
-                                  priority: project.priority,
-                                  status: project.status,
-                                ),
+                                timeRemainingColor,
                               ),
                             ),
                           ),
@@ -712,6 +727,13 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
                         count: _countFor('REVIEW'),
                         selected: _selectedFilter.value == 'REVIEW',
                         onTap: () => _selectedFilter.value = 'REVIEW',
+                      ),
+                      const SizedBox(width: 8),
+                      _FilterChip(
+                        label: 'Overdue',
+                        count: overdueCount,
+                        selected: _selectedFilter.value == 'OVERDUE',
+                        onTap: () => _selectedFilter.value = 'OVERDUE',
                       ),
                       const SizedBox(width: 8),
                       _FilterChip(

@@ -77,15 +77,17 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
   @override
   void initState() {
     super.initState();
-    paginationController = Get.isRegistered<ProjectPaginationController>()
+    final alreadyRegistered = Get.isRegistered<ProjectPaginationController>();
+    paginationController = alreadyRegistered
         ? Get.find<ProjectPaginationController>()
         : Get.put(ProjectPaginationController());
     paginationController.updateStatusFilter(ProjectStatusFilter.all);
     paginationController.updatePriorityFilter(PriorityFilter.all);
     paginationController.updateSearchQuery('');
-    // Force fresh load on entry to avoid stale/empty cached pagination state.
-    paginationController.resetPagination();
-    paginationController.loadNextPage();
+    if (alreadyRegistered) {
+      paginationController.resetPagination();
+      paginationController.loadNextPage();
+    }
   }
 
   @override

@@ -27,6 +27,7 @@ class _AddTaskState extends State<AddTask> with TickerProviderStateMixin {
   final TextEditingController descriptionController = TextEditingController();
   final TextEditingController memberSearchController = TextEditingController();
   final TextEditingController contributionController = TextEditingController();
+  final TextEditingController criticalDaysController = TextEditingController();
   final priorityController = ''.obs;
   final selectedMemberId = ''.obs;
   final memberSearchQuery = ''.obs;
@@ -143,6 +144,7 @@ class _AddTaskState extends State<AddTask> with TickerProviderStateMixin {
     selectedMemberId.value = task.ownerId;
     selectedDeadline.value = task.deadLine;
     selectedStartDate.value = task.startDate;
+    criticalDaysController.text = task.criticalDays.toString();
 
     if (_isProjectTask && task.contributionPercent > 0) {
       contributionController.text = task.contributionPercent.toString();
@@ -167,12 +169,12 @@ class _AddTaskState extends State<AddTask> with TickerProviderStateMixin {
       widget.parentTaskId != null &&
       widget.parentTaskId!.isNotEmpty;
 
-    bool get _isEditMode =>
+  bool get _isEditMode =>
       widget.taskToEdit != null &&
       widget.taskToEdit!.id != null &&
       widget.taskToEdit!.id!.isNotEmpty;
 
-    int get _editingTaskContribution =>
+  int get _editingTaskContribution =>
       _isEditMode ? widget.taskToEdit!.contributionPercent : 0;
 
   int get _assignedContribution {
@@ -465,7 +467,7 @@ class _AddTaskState extends State<AddTask> with TickerProviderStateMixin {
                                               controller:
                                                   contributionController,
                                               hint:
-                                                'Enter contribution % (optional)',
+                                                  'Enter contribution % (optional)',
                                               icon: Icons.percent_rounded,
                                               keyboardType:
                                                   TextInputType.number,
@@ -512,6 +514,24 @@ class _AddTaskState extends State<AddTask> with TickerProviderStateMixin {
                                       date: selectedDeadline.value,
                                       onTap: () => _pickDate(selectedDeadline),
                                     ),
+                                  ),
+                                ],
+                              ),
+                            ),
+
+                            const SizedBox(height: 20),
+                            _animatedField(
+                              0,
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  _buildLabel("Critical Days"),
+                                  const SizedBox(height: 8),
+                                  _buildTextField(
+                                    controller: criticalDaysController,
+                                    hint: "When do you want to be reminded?",
+                                    icon: Icons.title_rounded,
+                                    keyboardType: TextInputType.number,
                                   ),
                                 ],
                               ),
@@ -788,7 +808,10 @@ class _AddTaskState extends State<AddTask> with TickerProviderStateMixin {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(isEdit ? Icons.edit_rounded : Icons.add_task_rounded, size: 20),
+                Icon(
+                  isEdit ? Icons.edit_rounded : Icons.add_task_rounded,
+                  size: 20,
+                ),
                 const SizedBox(width: 8),
                 Text(
                   isEdit ? 'Modify Task' : 'Create Task',
@@ -1127,6 +1150,7 @@ class _AddTaskState extends State<AddTask> with TickerProviderStateMixin {
       remark: widget.taskToEdit?.remark,
       remainingTask: widget.taskToEdit?.remainingTask ?? 0,
       completedTask: widget.taskToEdit?.completedTask ?? 0,
+      criticalDays: int.tryParse(criticalDaysController.text.trim()) ?? 7,
     );
 
     if (_isEditMode) {

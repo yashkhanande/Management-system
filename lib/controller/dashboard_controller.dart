@@ -238,7 +238,7 @@ class DashboardController extends GetxController {
   // ── Dashboard section data ──
 
   List<AlertItem> get criticalAlerts {
-    const thresholdDays = 7;
+    
     final today = DateTime(
       DateTime.now().year,
       DateTime.now().month,
@@ -248,7 +248,7 @@ class DashboardController extends GetxController {
     final alerts = <AlertItem>[];
     for (final p in projects.where((p) => p.deadLine != null)) {
       final remaining = p.deadLine!.difference(today).inDays;
-      if (remaining <= thresholdDays) {
+      if (remaining <= p.criticalDays!) {
         final subtitle = remaining < 0
             ? '${-remaining}d past deadline'
             : remaining == 0

@@ -98,14 +98,16 @@ class TaskController extends GetxController {
     }
   }
 
-  Future<void> updateTask(String id, Task newTask) async {
+  Future<bool> updateTask(String id, Task newTask) async {
     isLoading.value = true;
     try {
       await _taskService.updateTask(id, newTask);
       await getAllTask();
       _refreshRelated();
+      return true;
     } catch (e) {
       Get.snackbar('Error', 'Failed to update task: $e');
+      return false;
     } finally {
       isLoading.value = false;
     }

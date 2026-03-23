@@ -10,7 +10,7 @@ import 'package:managementt/components/app_render_entrance.dart';
 import 'package:managementt/components/project_card.dart';
 import 'package:managementt/controller/dashboard_controller.dart';
 import 'package:managementt/controller/task_controller.dart';
-import 'package:managementt/model/filter_enums.dart';
+import 'package:managementt/model/task.dart';
 import 'package:managementt/service/task_service.dart';
 
 const _months = [
@@ -39,34 +39,30 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
   final TaskController taskController = Get.find<TaskController>();
   final DashboardController dc = Get.find<DashboardController>();
 
-  var selectedStatus = ProjectStatusFilter.all.obs;
+  final selectedProgress = 'ALL'.obs;
+  final selectedPriority = 'ALL'.obs;
+  final selectedCategory = 'ALL'.obs;
 
-  static const List<_StatusFilterChipData> _statusFilterOptions = [
-    _StatusFilterChipData(
-      filter: ProjectStatusFilter.all,
-      label: 'All',
-      color: Color(0xFFCBBCE6),
-    ),
-    _StatusFilterChipData(
-      filter: ProjectStatusFilter.active,
-      label: 'In Progress',
-      color: Color(0xFF2563EB),
-    ),
-    _StatusFilterChipData(
-      filter: ProjectStatusFilter.completed,
-      label: 'Completed',
-      color: Color(0xFF14B8A6),
-    ),
-    _StatusFilterChipData(
-      filter: ProjectStatusFilter.notStarted,
-      label: 'Not Started',
-      color: Color(0xFFF9BC16),
-    ),
-    _StatusFilterChipData(
-      filter: ProjectStatusFilter.overdue,
-      label: 'Overdue',
-      color: Color(0xFFF97316),
-    ),
+  static const Map<String, String> _projectProgressOptions = {
+    'ALL': 'ALL',
+    'IN_PROGRESS': 'IN PROGRESS',
+    'COMPLETED': 'COMPLETED',
+    'NOT_STARTED': 'NOT STARTED',
+    'OVERDUE': 'OVERDUE',
+  };
+  static const List<String> _projectPriorityOptions = [
+    'ALL',
+    'P1',
+    'P2',
+    'P3',
+    'P4',
+  ];
+  static const List<String> _projectCategoryOptions = [
+    'ALL',
+    'FINANCE',
+    'BUSSINESS',
+    'SOMETHING1',
+    'SOMETHING2',
   ];
 
   String get formattedDate {
@@ -74,56 +70,180 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
     return '${_months[now.month - 1]} ${now.day}, ${now.year}';
   }
 
-  // ONLY showing FIXED parts (rest remains same)
+  List<Task> getFilteredTasks() {
+    final allTasks = taskController.filteredTasks;
 
-  // 🔥 FIX 1: make filtering reactive properly
-  List getFilteredTasks() {
-    final allTasks = taskController.filteredTasks; // 🔥 USE CONTROLLER FILTER
-    final statusFilter = selectedStatus.value;
+    if (selectedProgress.value != 'ALL') {
+      return allTasks.where((t) {
+        final status = (t.status ?? '').toUpperCase();
+        switch (selectedProgress.value) {
+          case 'IN_PROGRESS':
+            return status == 'IN_PROGRESS';
+          case 'COMPLETED':
+            return status == 'DONE' || status == 'COMPLETED';
+          case 'NOT_STARTED':
+            return status == 'NOT_STARTED' || status == 'TODO';
+          case 'OVERDUE':
+            return status == 'OVERDUE';
+          case 'ALL':
+          default:
+            return true;
+        }
+      }).toList();
+    }
 
-    return allTasks.where((t) {
-      final status = (t.status ?? '').toUpperCase();
+    if (selectedPriority.value != 'ALL') {
+      return allTasks.where((t) {
+        final priority = t.priority.trim().toUpperCase();
+        return _matchesPriority(priority, selectedPriority.value);
+      }).toList();
+    }
 
-      switch (statusFilter) {
-        case ProjectStatusFilter.active:
-          return status == 'IN_PROGRESS';
-        case ProjectStatusFilter.completed:
-          return status == 'DONE' || status == 'COMPLETED';
-        case ProjectStatusFilter.overdue:
-          return status == 'OVERDUE';
-        case ProjectStatusFilter.notStarted:
-          return status == 'NOT_STARTED' || status == 'TODO';
-        case ProjectStatusFilter.all:
-        default:
-          return true;
-      }
-    }).toList();
+    if (selectedCategory.value != 'ALL') {
+      return allTasks.where((t) {
+        return true;
+      }).toList();
+    }
+
+    return allTasks;
   }
 
-  Widget _buildStatusFilterCarousel() {
+  void _onProgressChanged(String value) {
+    selectedProgress.value = value;
+    if (value != 'ALL') {
+      selectedPriority.value = 'ALL';
+      selectedCategory.value = 'ALL';
+    }
+  }
+
+  void _onPriorityChanged(String value) {
+    selectedPriority.value = value;
+    if (value != 'ALL') {
+      selectedProgress.value = 'ALL';
+      selectedCategory.value = 'ALL';
+    }
+  }
+
+  void _onCategoryChanged(String value) {
+    selectedCategory.value = value;
+    if (value != 'ALL') {
+      selectedProgress.value = 'ALL';
+      selectedPriority.value = 'ALL';
+    }
+  }
+
+  bool _matchesPriority(String projectPriority, String selected) {
+    switch (selected) {
+      case 'P1':
+        return projectPriority == 'P1' || projectPriority == 'HIGH';
+      case 'P2':
+        return projectPriority == 'P2';
+      case 'P3':
+        return projectPriority == 'P3' || projectPriority == 'MEDIUM';
+      case 'P4':
+        return projectPriority == 'P4' || projectPriority == 'LOW';
+      case 'ALL':
+      default:
+        return true;
+    }
+  }
+
+  Widget _buildProjectFiltersRow() {
+    return Obx(
+      () => Row(
+        children: [
+          Expanded(
+            child: _buildFilterDropdown(
+              value: selectedProgress.value,
+              hintText: 'project progress',
+              options: _projectProgressOptions.keys.toList(),
+              labelBuilder: (value) => _projectProgressOptions[value] ?? value,
+              onChanged: (value) {
+                if (value == null) return;
+                _onProgressChanged(value);
+              },
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: _buildFilterDropdown(
+              value: selectedPriority.value,
+              hintText: 'project priority',
+              options: _projectPriorityOptions,
+              labelBuilder: (value) => value,
+              onChanged: (value) {
+                if (value == null) return;
+                _onPriorityChanged(value);
+              },
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: _buildFilterDropdown(
+              value: selectedCategory.value,
+              hintText: 'project categories',
+              options: _projectCategoryOptions,
+              labelBuilder: (value) => value,
+              onChanged: (value) {
+                if (value == null) return;
+                _onCategoryChanged(value);
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFilterDropdown({
+    required String value,
+    required String hintText,
+    required List<String> options,
+    required String Function(String value) labelBuilder,
+    required ValueChanged<String?> onChanged,
+  }) {
     return SizedBox(
-      height: 40,
-      child: Obx(() {
-        final current = selectedStatus.value;
-
-        return ListView.separated(
-          scrollDirection: Axis.horizontal,
-          itemCount: _statusFilterOptions.length,
-          separatorBuilder: (_, __) => const SizedBox(width: 12),
-          itemBuilder: (context, index) {
-            final option = _statusFilterOptions[index];
-
-            return _StatusFilterChip(
-              data: option,
-              isActive: current == option.filter,
-              count: taskController
-                  .projects
-                  .length, // avoid calling non-reactive fn
-              onTap: () => selectedStatus.value = option.filter,
-            );
-          },
-        );
-      }),
+      height: 42,
+      child: DropdownButtonFormField<String>(
+        value: value,
+        isExpanded: true,
+        iconEnabledColor: Colors.white,
+        dropdownColor: const Color(0xFF4F46E5),
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 11,
+          fontWeight: FontWeight.w600,
+        ),
+        decoration: InputDecoration(
+          hintText: hintText,
+          hintStyle: TextStyle(
+            color: Colors.white.withValues(alpha: 0.8),
+            fontSize: 11,
+          ),
+          filled: true,
+          fillColor: Colors.white.withValues(alpha: 0.12),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 10,
+            vertical: 8,
+          ),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide.none,
+          ),
+        ),
+        items: options
+            .map(
+              (option) => DropdownMenuItem<String>(
+                value: option,
+                child: Text(
+                  labelBuilder(option),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            )
+            .toList(),
+        onChanged: onChanged,
+      ),
     );
   }
 
@@ -236,7 +356,7 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
 
                           const SizedBox(height: 10),
 
-                          _buildStatusFilterCarousel(),
+                          _buildProjectFiltersRow(),
 
                           const SizedBox(height: 10),
 
@@ -273,9 +393,8 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
               SliverPadding(
                 padding: const EdgeInsets.all(12),
                 sliver: Obx(() {
-                  final _ = selectedStatus.value; // 👈 trigger rebuild
-                  final __ = taskController.searchQuery.value;
                   final tasks = getFilteredTasks();
+                  final _ = taskController.searchQuery.value;
 
                   if (tasks.isEmpty) {
                     return const SliverToBoxAdapter(
@@ -391,67 +510,3 @@ class _StatChip extends StatelessWidget {
   }
 }
 
-class _StatusFilterChipData {
-  final ProjectStatusFilter filter;
-  final String label;
-  final Color color;
-
-  const _StatusFilterChipData({
-    required this.filter,
-    required this.label,
-    required this.color,
-  });
-}
-
-class _StatusFilterChip extends StatelessWidget {
-  final _StatusFilterChipData data;
-  final bool isActive;
-  final int count;
-  final VoidCallback onTap;
-
-  const _StatusFilterChip({
-    required this.data,
-    required this.isActive,
-    required this.count,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 220),
-        curve: Curves.easeOutCubic,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        decoration: BoxDecoration(
-          color: isActive
-              ? data.color.withValues(alpha: 0.22)
-              : Colors.white.withValues(alpha: 0.08),
-          borderRadius: BorderRadius.circular(30),
-          border: Border.all(
-            color: isActive ? data.color : Colors.white.withValues(alpha: 0.18),
-            width: 1.2,
-          ),
-          boxShadow: isActive
-              ? [
-                  BoxShadow(
-                    color: data.color.withValues(alpha: 0.35),
-                    blurRadius: 12,
-                    offset: const Offset(0, 5),
-                  ),
-                ]
-              : [],
-        ),
-        child: Text(
-          data.label,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-      ),
-    );
-  }
-}

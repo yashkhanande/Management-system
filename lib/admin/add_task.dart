@@ -9,8 +9,14 @@ import 'package:managementt/model/task.dart';
 class AddTask extends StatefulWidget {
   final String defaultType;
   final String? parentTaskId;
+  final Task? taskToEdit;
 
-  const AddTask({super.key, this.defaultType = 'PROJECT', this.parentTaskId});
+  const AddTask({
+    super.key,
+    this.defaultType = 'PROJECT',
+    this.parentTaskId,
+    this.taskToEdit,
+  });
 
   @override
   State<AddTask> createState() => _AddTaskState();
@@ -83,7 +89,7 @@ class _AddTaskState extends State<AddTask> with TickerProviderStateMixin {
       ),
     );
 
-    _fieldFades = List.generate(7, (i) {
+    _fieldFades = List.generate(8, (i) {
       final start = 0.3 + (i * 0.08);
       final end = (start + 0.14).clamp(0.0, 1.0);
       return Tween<double>(begin: 0.0, end: 1.0).animate(
@@ -93,7 +99,7 @@ class _AddTaskState extends State<AddTask> with TickerProviderStateMixin {
         ),
       );
     });
-    _fieldSlides = List.generate(7, (i) {
+    _fieldSlides = List.generate(8, (i) {
       final start = 0.3 + (i * 0.08);
       final end = (start + 0.14).clamp(0.0, 1.0);
       return Tween<Offset>(
@@ -122,7 +128,25 @@ class _AddTaskState extends State<AddTask> with TickerProviderStateMixin {
       Future.microtask(() => _taskController.getAllTask());
     }
 
+    _prefillForEdit();
+
     _staggerController.forward();
+  }
+
+  void _prefillForEdit() {
+    final task = widget.taskToEdit;
+    if (task == null) return;
+
+    titleController.text = task.title;
+    descriptionController.text = task.description;
+    priorityController.value = task.priority.toLowerCase();
+    selectedMemberId.value = task.ownerId;
+    selectedDeadline.value = task.deadLine;
+    selectedStartDate.value = task.startDate;
+
+    if (_isProjectTask && task.contributionPercent > 0) {
+      contributionController.text = task.contributionPercent.toString();
+    }
   }
 
   @override
@@ -143,6 +167,14 @@ class _AddTaskState extends State<AddTask> with TickerProviderStateMixin {
       widget.parentTaskId != null &&
       widget.parentTaskId!.isNotEmpty;
 
+    bool get _isEditMode =>
+      widget.taskToEdit != null &&
+      widget.taskToEdit!.id != null &&
+      widget.taskToEdit!.id!.isNotEmpty;
+
+    int get _editingTaskContribution =>
+      _isEditMode ? widget.taskToEdit!.contributionPercent : 0;
+
   int get _assignedContribution {
     final parentId = widget.parentTaskId;
     if (parentId == null || parentId.isEmpty) return 0;
@@ -152,7 +184,8 @@ class _AddTaskState extends State<AddTask> with TickerProviderStateMixin {
         .fold<int>(0, (sum, task) => sum + task.contributionPercent);
   }
 
-  int get _remainingContribution => math.max(0, 100 - _assignedContribution);
+  int get _remainingContribution =>
+      math.max(0, 100 - (_assignedContribution - _editingTaskContribution));
 
   @override
   Widget build(BuildContext context) {
@@ -235,8 +268,8 @@ class _AddTaskState extends State<AddTask> with TickerProviderStateMixin {
                             ),
                           ),
                           const SizedBox(height: 20),
-                          const Text(
-                            "Create\nNew Task",
+                          Text(
+                            _isEditMode ? "Modify\nTask" : "Create\nNew Task",
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 28,
@@ -247,7 +280,9 @@ class _AddTaskState extends State<AddTask> with TickerProviderStateMixin {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            _isProjectTask
+                            _isEditMode
+                                ? "Update task details and assignment"
+                                : _isProjectTask
                                 ? "Assign work and distribute the remaining project contribution"
                                 : "Assign work and set priorities for your team",
                             style: TextStyle(
@@ -376,7 +411,9 @@ class _AddTaskState extends State<AddTask> with TickerProviderStateMixin {
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      _buildLabel("Project Contribution"),
+                                      _buildLabel(
+                                        "Project Contribution (Optional)",
+                                      ),
                                       const SizedBox(height: 8),
                                       Container(
                                         width: double.infinity,
@@ -427,7 +464,8 @@ class _AddTaskState extends State<AddTask> with TickerProviderStateMixin {
                                             _buildTextField(
                                               controller:
                                                   contributionController,
-                                              hint: 'Enter contribution %',
+                                              hint:
+                                                'Enter contribution % (optional)',
                                               icon: Icons.percent_rounded,
                                               keyboardType:
                                                   TextInputType.number,
@@ -462,7 +500,7 @@ class _AddTaskState extends State<AddTask> with TickerProviderStateMixin {
 
                             // Deadline
                             _animatedField(
-                              _isProjectTask ? 4 : 3,
+                              _isProjectTask ? 5 : 4,
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -482,7 +520,7 @@ class _AddTaskState extends State<AddTask> with TickerProviderStateMixin {
 
                             // Member selector
                             _animatedField(
-                              _isProjectTask ? 5 : 4,
+                              _isProjectTask ? 6 : 5,
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -609,7 +647,7 @@ class _AddTaskState extends State<AddTask> with TickerProviderStateMixin {
 
                             // Submit button
                             _animatedField(
-                              _isProjectTask ? 6 : 5,
+                              _isProjectTask ? 7 : 6,
                               Obx(() {
                                 if (_taskController.isLoading.value) {
                                   return const Center(
@@ -621,7 +659,9 @@ class _AddTaskState extends State<AddTask> with TickerProviderStateMixin {
                                     ),
                                   );
                                 }
-                                return _buildGradientButton();
+                                return _isEditMode
+                                    ? _buildEditActionButtons()
+                                    : _buildGradientButton();
                               }),
                             ),
                           ],
@@ -683,7 +723,33 @@ class _AddTaskState extends State<AddTask> with TickerProviderStateMixin {
     }).toList();
   }
 
-  Widget _buildGradientButton() {
+  Widget _buildEditActionButtons() {
+    return Row(
+      children: [
+        Expanded(
+          child: OutlinedButton(
+            onPressed: () => Get.back(),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: AppColors.textSecondary,
+              side: const BorderSide(color: Color(0xFFD1D5DB)),
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
+            ),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+            ),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(child: _buildGradientButton(isEdit: true)),
+      ],
+    );
+  }
+
+  Widget _buildGradientButton({bool isEdit = false}) {
     return AnimatedBuilder(
       animation: _bgController,
       builder: (context, child) {
@@ -719,14 +785,17 @@ class _AddTaskState extends State<AddTask> with TickerProviderStateMixin {
                 borderRadius: BorderRadius.circular(14),
               ),
             ),
-            child: const Row(
+            child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.add_task_rounded, size: 20),
-                SizedBox(width: 8),
+                Icon(isEdit ? Icons.edit_rounded : Icons.add_task_rounded, size: 20),
+                const SizedBox(width: 8),
                 Text(
-                  "Create Task",
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                  isEdit ? 'Modify Task' : 'Create Task',
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ],
             ),
@@ -991,7 +1060,8 @@ class _AddTaskState extends State<AddTask> with TickerProviderStateMixin {
   }
 
   void _handleSubmit() async {
-    final contributionValue = int.tryParse(contributionController.text.trim());
+    final contributionText = contributionController.text.trim();
+    int contributionValue = 0;
 
     if (titleController.text.isEmpty ||
         descriptionController.text.isEmpty ||
@@ -999,7 +1069,7 @@ class _AddTaskState extends State<AddTask> with TickerProviderStateMixin {
         priorityController.value.isEmpty) {
       Get.snackbar(
         "Error",
-        "Please fill all fields",
+        "Please fill title, description, assignee, and priority",
         backgroundColor: Colors.redAccent,
         colorText: Colors.white,
         snackPosition: SnackPosition.BOTTOM,
@@ -1010,17 +1080,21 @@ class _AddTaskState extends State<AddTask> with TickerProviderStateMixin {
     }
 
     if (_isProjectTask) {
-      if (contributionValue == null || contributionValue <= 0) {
-        Get.snackbar(
-          "Error",
-          "Enter a valid contribution percentage",
-          backgroundColor: Colors.redAccent,
-          colorText: Colors.white,
-          snackPosition: SnackPosition.BOTTOM,
-          margin: const EdgeInsets.all(12),
-          borderRadius: 10,
-        );
-        return;
+      if (contributionText.isNotEmpty) {
+        final parsedContribution = int.tryParse(contributionText);
+        if (parsedContribution == null || parsedContribution < 0) {
+          Get.snackbar(
+            "Error",
+            "Enter a valid contribution percentage",
+            backgroundColor: Colors.redAccent,
+            colorText: Colors.white,
+            snackPosition: SnackPosition.BOTTOM,
+            margin: const EdgeInsets.all(12),
+            borderRadius: 10,
+          );
+          return;
+        }
+        contributionValue = parsedContribution;
       }
 
       if (contributionValue > _remainingContribution) {
@@ -1037,23 +1111,33 @@ class _AddTaskState extends State<AddTask> with TickerProviderStateMixin {
       }
     }
 
-    final isCreated = await _taskController.addTask(
-      Task(
-        title: titleController.text,
-        description: descriptionController.text,
-        priority: priorityController.value,
-        type: widget.defaultType,
-        status: 'NOT_STARTED',
-        ownerId: selectedMemberId.value,
-        parentTaskId: widget.parentTaskId,
-        contributionPercent: _isProjectTask ? (contributionValue ?? 0) : 0,
-        deadLine: selectedDeadline.value,
-        startDate: selectedStartDate.value,
-      ),
+    final payload = Task(
+      id: widget.taskToEdit?.id,
+      title: titleController.text,
+      description: descriptionController.text,
+      priority: priorityController.value,
+      type: widget.taskToEdit?.type ?? widget.defaultType,
+      status: widget.taskToEdit?.status ?? 'NOT_STARTED',
+      ownerId: selectedMemberId.value,
+      parentTaskId: widget.taskToEdit?.parentTaskId ?? widget.parentTaskId,
+      contributionPercent: _isProjectTask ? contributionValue : 0,
+      deadLine: selectedDeadline.value,
+      startDate: selectedStartDate.value,
+      progress: widget.taskToEdit?.progress ?? 0,
+      remark: widget.taskToEdit?.remark,
+      remainingTask: widget.taskToEdit?.remainingTask ?? 0,
+      completedTask: widget.taskToEdit?.completedTask ?? 0,
     );
-    if (!isCreated) {
-      return;
+
+    if (_isEditMode) {
+      final taskId = widget.taskToEdit!.id!;
+      final isUpdated = await _taskController.updateTask(taskId, payload);
+      if (!isUpdated) return;
+    } else {
+      final isCreated = await _taskController.addTask(payload);
+      if (!isCreated) return;
     }
+
     await _memberController.getMembers();
     Get.back();
   }

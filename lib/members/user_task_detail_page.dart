@@ -36,7 +36,7 @@ class _UserTaskDetailPageState extends State<UserTaskDetailPage> {
   }
 
   Future<void> _convertTaskToProjectAndAddSubtasks() async {
-    final taskId = widget.task.id;
+    final taskId = widget.task.id; 
     if (taskId == null || taskId.isEmpty) {
       Get.snackbar(
         'Error',
@@ -55,7 +55,7 @@ class _UserTaskDetailPageState extends State<UserTaskDetailPage> {
         title: widget.task.title,
         description: widget.task.description,
         priority: widget.task.priority,
-        type: 'PROJECT',
+        type: widget.task.type,
         status: widget.task.status,
         ownerId: widget.task.ownerId,
         parentTaskId: widget.task.parentTaskId,

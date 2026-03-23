@@ -64,6 +64,17 @@ class TaskService {
       );
     }
   }
+  Future<void> updateTaskType(String id) async {
+    final response = await _api.put(
+      '/tasks/updateType/$id',
+      body: true,
+    );
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw Exception(
+        response.body.isNotEmpty ? response.body : 'Failed to update task',
+      );
+    }
+  }
 
   Future<void> deleteTask(String id) async {
     final response = await _api.delete('/tasks/delete/$id');

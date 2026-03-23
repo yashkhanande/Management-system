@@ -15,6 +15,7 @@ class Task {
   int remainingTask;
   int completedTask;
   int? criticalDays;
+  bool? isProject;
 
   Task({
     this.id,
@@ -33,6 +34,7 @@ class Task {
     this.criticalDays,
     this.remainingTask = 0,
     this.completedTask = 0,
+    this.isProject,
   });
 
   factory Task.fromJson(Map<String, dynamic> json) {
@@ -51,7 +53,7 @@ class Task {
       type: json['type'],
       status: json['status'],
       ownerId: json['ownerId'] ?? '',
-      parentTaskId: json['parentTaskId'],
+      parentTaskId: json['parentTaskId'] ?? null,
       progress: json['progress'] ?? 0,
       contributionPercent: rawContribution is num
           ? rawContribution.toInt()
@@ -70,6 +72,7 @@ class Task {
                 ? json['criticalDays'].toInt()
                 : int.tryParse(json['criticalDays'].toString()))
           : 7, //default 7 days
+      isProject: json['isProject'] ?? false,
     );
   }
 
@@ -97,6 +100,7 @@ class Task {
       "remainingTask": remainingTask,
       "completedTask": completedTask,
       "criticalDays": criticalDays ?? 7,
+      "isProject": isProject ?? false,
     };
   }
 }

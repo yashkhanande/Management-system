@@ -1,16 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:managementt/admin/project_dashboard.dart';
 import 'package:managementt/admin/project_detail_page.dart';
 import 'package:managementt/components/app_colors.dart';
-import 'package:managementt/components/date_time_helper.dart';
 import 'package:managementt/components/app_render_entrance.dart';
 import 'package:managementt/components/dashboard_tiles.dart';
 import 'package:managementt/components/donut_chart.dart';
-import 'package:managementt/components/project_card.dart';
 import 'package:managementt/components/section_header.dart';
 import 'package:managementt/components/stat_card.dart';
-import 'package:managementt/controller/admin_nav_controller.dart';
 import 'package:managementt/controller/dashboard_controller.dart';
 import 'package:managementt/service/task_service.dart';
 
@@ -386,51 +382,6 @@ class AdminDashboard extends StatelessWidget {
                       ),
                     ),
                   ),
-
-                  SectionHeader(
-                    title: 'Active Projects',
-                    actionText: 'See all',
-                    onAction: () {
-                      if (Get.isRegistered<AdminNavController>()) {
-                        Get.find<AdminNavController>().changePage(1);
-                        return;
-                      }
-                      Get.to(() => ProjectDashboard());
-                    },
-                  ),
-
-                  ...List.generate(dc.projects.take(5).length, (i) {
-                    final project = dc.projects[i];
-                    final totalSub =
-                        project.completedTask + project.remainingTask;
-
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 10),
-                      child: ProjectCard(
-                        title: project.title,
-                        subtitle: project.description,
-                        dueText: dc.formatDeadline(project.deadLine),
-                        status: '${project.completedTask}/$totalSub tasks',
-                        progress: project.progress / 100.0,
-                        timeProgress: DateTimeHelper.remainingTimeRatio(
-                          project.startDate,
-                          project.deadLine,
-                        ),
-                        teamMembers: [dc.getMemberInitials(project.ownerId)],
-                        accentColor: dc.projectAccent(project),
-                        onTap: () {
-                          Get.to(
-                            () => ProjectDetailPage(
-                              project: project,
-                              projectMemberNames: [
-                                dc.getMemberName(project.ownerId),
-                              ],
-                            ),
-                          );
-                        },
-                      ),
-                    );
-                  }),
 
                   const SizedBox(height: 10),
 

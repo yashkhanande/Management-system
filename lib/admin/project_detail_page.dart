@@ -414,17 +414,18 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
                                 ),
                               ),
                               const SizedBox(height: 4),
-                              if (project.description.trim().isNotEmpty)
-                                Text(
-                                  project.description,
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                    color: Colors.white.withValues(alpha: 0.85),
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w500,
-                                  ),
+                              Text(
+                                'Project Leader: ${_memberNameById(project.ownerId)}',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  color: Colors.white.withValues(alpha: 0.9),
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
                                 ),
+                              ),
+                              const SizedBox(height: 4),
+                             
                             ],
                           ),
                         ),

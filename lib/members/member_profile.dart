@@ -142,7 +142,7 @@ class _MemberProfilePageState extends State<MemberProfilePage> {
                   padding: EdgeInsets.fromLTRB(16, topPad + 12, 16, 20),
                   decoration: const BoxDecoration(
                     gradient: LinearGradient(
-                      colors: [Color(0xFF6D70F6), Color(0xFF8986F8)],
+                      colors: [Color(0xFF7C3AED), Color(0xFF4338CA)],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
@@ -280,42 +280,6 @@ class _MemberProfilePageState extends State<MemberProfilePage> {
                         ],
                       ),
                       const SizedBox(height: 18),
-                      // Stat pills
-                      Row(
-                        children: [
-                          Expanded(
-                            child: _StatCard(
-                              count: '${pc.totalTasks}',
-                              label: 'Total',
-                              icon: Icons.assignment_rounded,
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: _StatCard(
-                              count: '${pc.activeTasks}',
-                              label: 'Active',
-                              icon: Icons.play_circle_outline_rounded,
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: _StatCard(
-                              count: '${pc.doneTasks}',
-                              label: 'Done',
-                              icon: Icons.task_alt_rounded,
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: _StatCard(
-                              count: '${pc.overdueTasks}',
-                              label: 'Overdue',
-                              icon: Icons.warning_amber_rounded,
-                            ),
-                          ),
-                        ],
-                      ),
                     ],
                   ),
                 ),

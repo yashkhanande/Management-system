@@ -7,8 +7,10 @@ import 'package:managementt/service/task_service.dart';
 
 class TaskController extends GetxController {
   final TaskService _taskService = TaskService();
+  //final MemberController memberController = Get.find<MemberController>();
 
   var tasks = <Task>[].obs;
+  var projects = <Task>[].obs;
   var ownerTask = <Task>[].obs;
   var searchQuery = ''.obs;
   String? ownerId;
@@ -16,9 +18,29 @@ class TaskController extends GetxController {
 
   /// Filtered tasks based on search query — reactive.
   List<Task> get filteredTasks {
-    if (searchQuery.value.isEmpty) return tasks;
-    final q = searchQuery.value.toLowerCase();
-    return tasks.where((t) => t.title.toLowerCase().contains(q)).toList();
+    final q = searchQuery.value.toLowerCase().trim();
+
+    // 👇 show all if empty OR even 1 char works automatically
+    if (q.isEmpty) return tasks.toList();
+
+    final dashboardController = Get.find<DashboardController>();
+
+    return tasks.where((t) {
+      final title = (t.title).toLowerCase();
+      final owner = (t.ownerId).toLowerCase();
+      final memberName = (dashboardController
+          .getMemberName(t.ownerId)
+          .toLowerCase());
+      print(
+        "SEARCH DEBUG → ${t.title} | ${dashboardController.getMemberName(t.ownerId)}",
+      );
+
+      return title.contains(q) || owner.contains(q) || memberName.contains(q);
+    }).toList();
+  }
+
+  void getProjects() {
+    projects.value = tasks.where((task) => task.type == 'PROJECT').toList();
   }
 
   @override
@@ -68,6 +90,7 @@ class TaskController extends GetxController {
     isLoading.value = true;
     try {
       tasks.value = await _taskService.getAllTask();
+      getProjects();
     } catch (e) {
       print("Error fetching tasks: $e");
     } finally {
@@ -75,14 +98,16 @@ class TaskController extends GetxController {
     }
   }
 
-  Future<void> updateTask(String id, Task newTask) async {
+  Future<bool> updateTask(String id, Task newTask) async {
     isLoading.value = true;
     try {
       await _taskService.updateTask(id, newTask);
       await getAllTask();
       _refreshRelated();
+      return true;
     } catch (e) {
       Get.snackbar('Error', 'Failed to update task: $e');
+      return false;
     } finally {
       isLoading.value = false;
     }

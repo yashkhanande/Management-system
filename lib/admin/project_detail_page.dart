@@ -414,17 +414,18 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
                                 ),
                               ),
                               const SizedBox(height: 4),
-                              if (project.description.trim().isNotEmpty)
-                                Text(
-                                  project.description,
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                    color: Colors.white.withValues(alpha: 0.85),
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w500,
-                                  ),
+                              Text(
+                                'Project Leader: ${_memberNameById(project.ownerId)}',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  color: Colors.white.withValues(alpha: 0.9),
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
                                 ),
+                              ),
+                              const SizedBox(height: 4),
+                             
                             ],
                           ),
                         ),
@@ -849,6 +850,15 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
                         task: t,
                         deadlineText: _deadlineText(t.deadLine),
                         ownerName: _memberNameById(t.ownerId),
+                        onTap: () {
+                          Get.to(
+                            () => AddTask(
+                              defaultType: t.type ?? 'TASK',
+                              parentTaskId: t.parentTaskId,
+                              taskToEdit: t,
+                            ),
+                          );
+                        },
                         onApprove: showApprove ? () => _approveTask(t) : null,
                       );
                     }).toList(),
@@ -955,12 +965,14 @@ class _TaskCard extends StatelessWidget {
   final Task task;
   final String deadlineText;
   final String ownerName;
+  final VoidCallback? onTap;
   final VoidCallback? onApprove;
 
   const _TaskCard({
     required this.task,
     required this.deadlineText,
     required this.ownerName,
+    this.onTap,
     this.onApprove,
   });
 
@@ -972,22 +984,25 @@ class _TaskCard extends StatelessWidget {
       status: task.status,
     );
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE5E7EB)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 8,
-            offset: const Offset(0, 1),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 10),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: const Color(0xFFE5E7EB)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.04),
+              blurRadius: 8,
+              offset: const Offset(0, 1),
+            ),
+          ],
+        ),
+        child: Column(
+          children: [
           Container(
             height: 2,
             decoration: BoxDecoration(
@@ -1117,7 +1132,8 @@ class _TaskCard extends StatelessWidget {
               ],
             ),
           ),
-        ],
+          ],
+        ),
       ),
     );
   }

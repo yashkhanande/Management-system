@@ -14,6 +14,7 @@ class Task {
   DateTime? startDate;
   int remainingTask;
   int completedTask;
+  int? criticalDays;
 
   Task({
     this.id,
@@ -29,6 +30,7 @@ class Task {
     this.remark,
     this.deadLine,
     this.startDate,
+    this.criticalDays,
     this.remainingTask = 0,
     this.completedTask = 0,
   });
@@ -63,6 +65,11 @@ class Task {
           : null,
       remainingTask: json['remainingTask'] ?? 0,
       completedTask: json['completedTask'] ?? 0,
+      criticalDays: json['criticalDays'] != null
+          ? (json['criticalDays'] is num
+                ? json['criticalDays'].toInt()
+                : int.tryParse(json['criticalDays'].toString()))
+          : 7, //default 7 days
     );
   }
 
@@ -89,6 +96,7 @@ class Task {
       "startDate": startDateValue,
       "remainingTask": remainingTask,
       "completedTask": completedTask,
+      "criticalDays": criticalDays ?? 7,
     };
   }
 }

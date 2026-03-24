@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:managementt/admin/add_task.dart';
+import 'package:managementt/admin/manage_categories_page.dart';
 import 'package:managementt/admin/project_detail_page.dart';
 import 'package:managementt/components/app_confirm_dialog.dart';
 import 'package:managementt/components/app_colors.dart';
 import 'package:managementt/components/date_time_helper.dart';
 import 'package:managementt/components/app_render_entrance.dart';
 import 'package:managementt/components/project_card.dart';
+import 'package:managementt/controller/category_controller.dart';
 import 'package:managementt/controller/dashboard_controller.dart';
 import 'package:managementt/controller/task_controller.dart';
 import 'package:managementt/model/task.dart';
@@ -38,6 +40,7 @@ class ProjectDashboard extends StatefulWidget {
 class _ProjectDashboardState extends State<ProjectDashboard> {
   final TaskController taskController = Get.find<TaskController>();
   final DashboardController dc = Get.find<DashboardController>();
+  final CategoryController categoryController = Get.find<CategoryController>();
 
   final selectedProgress = 'ALL'.obs;
   final selectedPriority = 'ALL'.obs;
@@ -52,29 +55,32 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
   };
   static const List<String> _projectPriorityOptions = [
     'ALL',
-    'P1',
-    'P2',
-    'P3',
-    'P4',
+    'Critical',
+    'High',
+    'Moderate',
+    'Low',
   ];
-  static const List<String> _projectCategoryOptions = [
-    'ALL',
-    'FINANCE',
-    'BUSSINESS',
-    'SOMETHING1',
-    'SOMETHING2',
-  ];
-
   String get formattedDate {
     final now = DateTime.now();
     return '${_months[now.month - 1]} ${now.day}, ${now.year}';
   }
 
+  List<String> get _projectCategoryOptions =>
+      categoryController.dropdownOptions;
+
   List<Task> getFilteredTasks() {
-    final allTasks = taskController.filteredTasks;
+    final projects = taskController.projects;
+    final searchQuery = taskController.searchQuery.value.trim().toLowerCase();
+
+    var allTasks = projects.where((t) {
+      if (searchQuery.isEmpty) return true;
+      final title = t.title.toLowerCase();
+      final ownerName = dc.getMemberName(t.ownerId).toLowerCase();
+      return title.contains(searchQuery) || ownerName.contains(searchQuery);
+    }).toList();
 
     if (selectedProgress.value != 'ALL') {
-      return allTasks.where((t) {
+      allTasks = allTasks.where((t) {
         final status = (t.status ?? '').toUpperCase();
         switch (selectedProgress.value) {
           case 'IN_PROGRESS':
@@ -93,15 +99,16 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
     }
 
     if (selectedPriority.value != 'ALL') {
-      return allTasks.where((t) {
+      allTasks = allTasks.where((t) {
         final priority = t.priority.trim().toUpperCase();
         return _matchesPriority(priority, selectedPriority.value);
       }).toList();
     }
 
     if (selectedCategory.value != 'ALL') {
-      return allTasks.where((t) {
-        return true;
+      allTasks = allTasks.where((t) {
+        final taskCategory = (t.category ?? '').trim().toUpperCase();
+        return taskCategory == selectedCategory.value;
       }).toList();
     }
 
@@ -134,14 +141,14 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
 
   bool _matchesPriority(String projectPriority, String selected) {
     switch (selected) {
-      case 'P1':
-        return projectPriority == 'P1' || projectPriority == 'HIGH';
-      case 'P2':
-        return projectPriority == 'P2';
-      case 'P3':
-        return projectPriority == 'P3' || projectPriority == 'MEDIUM';
-      case 'P4':
-        return projectPriority == 'P4' || projectPriority == 'LOW';
+      case 'Critical':
+        return projectPriority == 'Critical' || projectPriority == 'HIGH';
+      case 'High':
+        return projectPriority == 'High';
+      case 'Moderate':
+        return projectPriority == 'Moderate' || projectPriority == 'MEDIUM';
+      case 'Low':
+        return projectPriority == 'Low' || projectPriority == 'LOW';
       case 'ALL':
       default:
         return true;
@@ -293,6 +300,7 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
+
                               const Spacer(),
                               InkWell(
                                 onTap: () => Get.to(() => AddTask()),
@@ -382,6 +390,32 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
                               style: const TextStyle(color: Colors.white),
                             ),
                           ),
+                          SizedBox(height: 19),
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: TextButton(
+                              onPressed: () =>
+                                  Get.to(() => const ManageCategoriesPage()),
+                              style: TextButton.styleFrom(
+                                backgroundColor: Colors.white.withValues(alpha: 0.15),
+                                minimumSize: const Size(0, 28),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 0,
+                                ),
+                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              ),
+                              child: Text(
+                                'Manage Project Categories',
+                                style: TextStyle(
+                                  color: Colors.white.withValues(alpha: 0.95),
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
+                                  decoration: TextDecoration.none,
+                                ),
+                              ),
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -393,7 +427,7 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
               SliverPadding(
                 padding: const EdgeInsets.all(12),
                 sliver: Obx(() {
-                  final tasks = taskController.projects;
+                  final tasks = getFilteredTasks();
                   final _ = taskController.searchQuery.value;
 
                   if (tasks.isEmpty) {

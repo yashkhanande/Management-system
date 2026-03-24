@@ -2,6 +2,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:managementt/components/app_colors.dart';
+import 'package:managementt/controller/category_controller.dart';
 import 'package:managementt/controller/member_controller.dart';
 import 'package:managementt/controller/task_controller.dart';
 import 'package:managementt/model/task.dart';
@@ -33,8 +34,10 @@ class _AddTaskState extends State<AddTask> with TickerProviderStateMixin {
   final memberSearchQuery = ''.obs;
   final Rx<DateTime?> selectedDeadline = Rx<DateTime?>(null);
   final Rx<DateTime?> selectedStartDate = Rx<DateTime?>(null);
+  final RxString selectedCategory = ''.obs;
   final TaskController _taskController = Get.find<TaskController>();
   final MemberController _memberController = Get.find<MemberController>();
+  final CategoryController _categoryController = Get.find<CategoryController>();
 
   // Animation controllers
   late final AnimationController _bgController;
@@ -90,7 +93,7 @@ class _AddTaskState extends State<AddTask> with TickerProviderStateMixin {
       ),
     );
 
-    _fieldFades = List.generate(8, (i) {
+    _fieldFades = List.generate(9, (i) {
       final start = 0.3 + (i * 0.08);
       final end = (start + 0.14).clamp(0.0, 1.0);
       return Tween<double>(begin: 0.0, end: 1.0).animate(
@@ -100,7 +103,7 @@ class _AddTaskState extends State<AddTask> with TickerProviderStateMixin {
         ),
       );
     });
-    _fieldSlides = List.generate(8, (i) {
+    _fieldSlides = List.generate(9, (i) {
       final start = 0.3 + (i * 0.08);
       final end = (start + 0.14).clamp(0.0, 1.0);
       return Tween<Offset>(
@@ -142,6 +145,10 @@ class _AddTaskState extends State<AddTask> with TickerProviderStateMixin {
     descriptionController.text = task.description;
     priorityController.value = task.priority.toLowerCase();
     selectedMemberId.value = task.ownerId;
+    final category = (task.category ?? '').trim().toUpperCase();
+    selectedCategory.value = _categoryController.categories.contains(category)
+      ? category
+      : '';
     selectedDeadline.value = task.deadLine;
     selectedStartDate.value = task.startDate;
     criticalDaysController.text = task.criticalDays.toString();
@@ -366,9 +373,25 @@ class _AddTaskState extends State<AddTask> with TickerProviderStateMixin {
                             ),
                             const SizedBox(height: 20),
 
-                            // Priority
+                            // Category (optional)
                             _animatedField(
                               2,
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  _buildLabel("Category (Optional)"),
+                                  const SizedBox(height: 8),
+                                  Obx(
+                                    () => _buildCategoryDropdown(),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 20),
+
+                            // Priority
+                            _animatedField(
+                              3,
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -407,7 +430,7 @@ class _AddTaskState extends State<AddTask> with TickerProviderStateMixin {
 
                             if (_isProjectTask) ...[
                               _animatedField(
-                                3,
+                                4,
                                 Obx(
                                   () => Column(
                                     crossAxisAlignment:
@@ -482,7 +505,7 @@ class _AddTaskState extends State<AddTask> with TickerProviderStateMixin {
                               const SizedBox(height: 20),
                             ],
                             _animatedField(
-                              _isProjectTask ? 4 : 3,
+                              _isProjectTask ? 5 : 4,
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -502,7 +525,7 @@ class _AddTaskState extends State<AddTask> with TickerProviderStateMixin {
 
                             // Deadline
                             _animatedField(
-                              _isProjectTask ? 5 : 4,
+                              _isProjectTask ? 6 : 5,
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -540,7 +563,7 @@ class _AddTaskState extends State<AddTask> with TickerProviderStateMixin {
 
                             // Member selector
                             _animatedField(
-                              _isProjectTask ? 6 : 5,
+                              _isProjectTask ? 7 : 6,
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -667,7 +690,7 @@ class _AddTaskState extends State<AddTask> with TickerProviderStateMixin {
 
                             // Submit button
                             _animatedField(
-                              _isProjectTask ? 7 : 6,
+                              _isProjectTask ? 8 : 7,
                               Obx(() {
                                 if (_taskController.isLoading.value) {
                                   return const Center(
@@ -952,6 +975,53 @@ class _AddTaskState extends State<AddTask> with TickerProviderStateMixin {
     );
   }
 
+  Widget _buildCategoryDropdown() {
+    return DropdownButtonFormField<String>(
+      value: selectedCategory.value.isEmpty ? null : selectedCategory.value,
+      isExpanded: true,
+      hint: const Text(
+        'Select category',
+        style: TextStyle(
+          color: AppColors.textSecondary,
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
+      decoration: InputDecoration(
+        filled: true,
+        fillColor: const Color(0xFFF8F9FC),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.grey.withValues(alpha: 0.2)),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.grey.withValues(alpha: 0.2)),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
+        ),
+      ),
+      icon: const Icon(Icons.keyboard_arrow_down_rounded),
+      items: _categoryController.categories
+          .map(
+            (category) => DropdownMenuItem<String>(
+              value: category,
+              child: Text(
+                category,
+                style: const TextStyle(fontSize: 14),
+              ),
+            ),
+          )
+          .toList(),
+      onChanged: (value) {
+        selectedCategory.value = value ?? '';
+      },
+    );
+  }
+
   Widget _buildDatePicker({
     required String label,
     required DateTime? date,
@@ -1141,6 +1211,9 @@ class _AddTaskState extends State<AddTask> with TickerProviderStateMixin {
       priority: priorityController.value,
       type: widget.taskToEdit?.type ?? widget.defaultType,
       status: widget.taskToEdit?.status ?? 'NOT_STARTED',
+      category: selectedCategory.value.isEmpty
+          ? widget.taskToEdit?.category
+          : selectedCategory.value,
       ownerId: selectedMemberId.value,
       parentTaskId: widget.taskToEdit?.parentTaskId ?? widget.parentTaskId,
       contributionPercent: _isProjectTask ? contributionValue : 0,

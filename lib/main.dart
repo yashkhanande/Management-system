@@ -4,6 +4,7 @@ import 'package:managementt/admin/admin_wrapper.dart';
 import 'package:managementt/components/app_colors.dart';
 import 'package:managementt/controller/admin_nav_controller.dart';
 import 'package:managementt/controller/auth_controller.dart';
+import 'package:managementt/controller/category_controller.dart';
 import 'package:managementt/controller/dashboard_controller.dart';
 import 'package:managementt/controller/member_controller.dart';
 import 'package:managementt/controller/profile_controller.dart';
@@ -18,6 +19,7 @@ void main() {
   // Register controllers permanently so they stay alive
   // and can cross-refresh each other for real-time updates.
   Get.put(AuthController(), permanent: true);
+  Get.put(CategoryController(), permanent: true);
   Get.put(TaskController(), permanent: true);
   Get.put(MemberController(), permanent: true);
   Get.put(DashboardController(), permanent: true);

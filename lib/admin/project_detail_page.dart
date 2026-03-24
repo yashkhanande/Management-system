@@ -28,6 +28,79 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
   final RxString _selectedFilter = 'ALL'.obs;
   final RxString _taskSearchQuery = ''.obs;
 
+  void _openTaskEditor(Task task) {
+    Get.to(
+      () => AddTask(
+        defaultType: task.type ?? 'TASK',
+        parentTaskId: task.parentTaskId,
+        taskToEdit: task,
+      ),
+    );
+  }
+
+  Future<void> _undoCompletedTask(Task task) async {
+    final taskId = task.id;
+    if (taskId == null || taskId.isEmpty) {
+      Get.snackbar(
+        'Error',
+        'Task id is missing. Please refresh and try again.',
+        backgroundColor: AppColors.error,
+        colorText: Colors.white,
+      );
+      return;
+    }
+
+    if (!_canApproveTasks) {
+      Get.snackbar(
+        'Action blocked',
+        'Only the project owner or an admin can undo this task.',
+        backgroundColor: AppColors.error,
+        colorText: Colors.white,
+      );
+      return;
+    }
+
+    if (!AppColors.isCompletedStatus(task.status)) {
+      Get.snackbar(
+        'Not allowed',
+        'Only tasks marked done can be undone.',
+        backgroundColor: AppColors.warning,
+        colorText: Colors.white,
+      );
+      return;
+    }
+
+    final updated = Task(
+      id: task.id,
+      title: task.title,
+      description: task.description,
+      priority: task.priority,
+      type: task.type,
+      status: 'TODO',
+      ownerId: task.ownerId,
+      parentTaskId: task.parentTaskId,
+      progress: 0,
+      contributionPercent: task.contributionPercent,
+      remark: task.remark,
+      deadLine: task.deadLine,
+      startDate: task.startDate,
+      remainingTask: task.remainingTask,
+      completedTask: task.completedTask,
+      criticalDays: task.criticalDays,
+      isProject: task.isProject,
+    );
+
+    final ok = await _taskController.updateTask(taskId, updated);
+    if (ok) {
+      Get.snackbar(
+        'Task reopened',
+        'Task marked as TODO and re-allocated to ${_memberNameById(task.ownerId)}.',
+        backgroundColor: AppColors.success,
+        colorText: Colors.white,
+      );
+    }
+  }
+
   Future<void> _approveTask(Task task) async {
     final taskId = task.id;
     if (taskId == null || taskId.isEmpty) {
@@ -850,15 +923,10 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
                         task: t,
                         deadlineText: _deadlineText(t.deadLine),
                         ownerName: _memberNameById(t.ownerId),
-                        onTap: () {
-                          Get.to(
-                            () => AddTask(
-                              defaultType: t.type ?? 'TASK',
-                              parentTaskId: t.parentTaskId,
-                              taskToEdit: t,
-                            ),
-                          );
-                        },
+                        onModify: () => _openTaskEditor(t),
+                        onUndone: AppColors.isCompletedStatus(t.status)
+                            ? () => _undoCompletedTask(t)
+                            : null,
                         onApprove: showApprove ? () => _approveTask(t) : null,
                       );
                     }).toList(),
@@ -965,14 +1033,16 @@ class _TaskCard extends StatelessWidget {
   final Task task;
   final String deadlineText;
   final String ownerName;
-  final VoidCallback? onTap;
+  final VoidCallback? onModify;
+  final VoidCallback? onUndone;
   final VoidCallback? onApprove;
 
   const _TaskCard({
     required this.task,
     required this.deadlineText,
     required this.ownerName,
-    this.onTap,
+    this.onModify,
+    this.onUndone,
     this.onApprove,
   });
 
@@ -984,25 +1054,22 @@ class _TaskCard extends StatelessWidget {
       status: task.status,
     );
 
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 10),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: const Color(0xFFE5E7EB)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.04),
-              blurRadius: 8,
-              offset: const Offset(0, 1),
-            ),
-          ],
-        ),
-        child: Column(
-          children: [
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE5E7EB)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 1),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
           Container(
             height: 2,
             decoration: BoxDecoration(
@@ -1037,20 +1104,56 @@ class _TaskCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        task.title,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
-                          color: const Color(0xFF1F2937),
-                          decoration: isDone
-                              ? TextDecoration.lineThrough
-                              : TextDecoration.none,
-                          decorationColor: const Color(0xFF9CA3AF),
-                          decorationThickness: 2,
-                        ),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              task.title,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                                color: const Color(0xFF1F2937),
+                                decoration: isDone
+                                    ? TextDecoration.lineThrough
+                                    : TextDecoration.none,
+                                decorationColor: const Color(0xFF9CA3AF),
+                                decorationThickness: 2,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          PopupMenuButton<_TaskQuickAction>(
+                            tooltip: 'Task actions',
+                            onSelected: (action) {
+                              if (action == _TaskQuickAction.modify) {
+                                onModify?.call();
+                                return;
+                              }
+                              if (action == _TaskQuickAction.undone) {
+                                onUndone?.call();
+                              }
+                            },
+                            itemBuilder: (context) => [
+                              const PopupMenuItem<_TaskQuickAction>(
+                                value: _TaskQuickAction.modify,
+                                child: Text('MODIFY'),
+                              ),
+                              PopupMenuItem<_TaskQuickAction>(
+                                value: _TaskQuickAction.undone,
+                                enabled: onUndone != null,
+                                child: const Text('UNDONE'),
+                              ),
+                            ],
+                            icon: const Icon(
+                              Icons.edit_outlined,
+                              size: 18,
+                              color: Color(0xFF475569),
+                            ),
+                          ),
+                        ],
                       ),
                       const SizedBox(height: 4),
                       Text(
@@ -1132,8 +1235,7 @@ class _TaskCard extends StatelessWidget {
               ],
             ),
           ),
-          ],
-        ),
+        ],
       ),
     );
   }
@@ -1158,6 +1260,8 @@ class _TaskCard extends StatelessWidget {
     }
   }
 }
+
+enum _TaskQuickAction { modify, undone }
 
 class _Badge extends StatelessWidget {
   final String text;

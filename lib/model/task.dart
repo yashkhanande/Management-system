@@ -5,6 +5,7 @@ class Task {
   String priority;
   String? type; // PROJECT or TASK
   String? status; // NOT_STARTED / TODO / DONE / OVERDUE
+  String? category;
   String ownerId;
   String? parentTaskId;
   int progress; // 0-100
@@ -24,6 +25,7 @@ class Task {
     required this.priority,
     this.type,
     this.status,
+    this.category,
     required this.ownerId,
     this.parentTaskId,
     this.progress = 0,
@@ -52,6 +54,7 @@ class Task {
       priority: json['priority'] ?? '',
       type: json['type'],
       status: json['status'],
+      category: json['category'] ?? json['projectCategory'],
       ownerId: json['ownerId'] ?? '',
       parentTaskId: json['parentTaskId'] ?? null,
       progress: json['progress'] ?? 0,
@@ -87,6 +90,7 @@ class Task {
       "priority": priority,
       "type": type,
       "status": status,
+      "category": category,
       "ownerId": ownerId,
       "parentTaskId": parentTaskId,
       "progress": progress,

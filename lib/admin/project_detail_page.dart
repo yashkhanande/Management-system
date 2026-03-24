@@ -480,7 +480,6 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
                               Text(
                                 'Project Leader: ${_memberNameById(project.ownerId)}',
                                 maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
                                   color: Colors.white.withValues(alpha: 0.9),
                                   fontSize: 13,
@@ -494,7 +493,10 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
                         const Spacer(),
                         IconButton(
                           onPressed: () {
-                            Get.to(() => CollaborationPage(), arguments: project.id);
+                            Get.to(
+                              () => CollaborationPage(),
+                              arguments: project.id,
+                            );
                           },
                           icon: Icon(Icons.people, color: Colors.white),
                         ),

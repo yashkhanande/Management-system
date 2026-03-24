@@ -67,8 +67,21 @@ class MemberService {
       body: member.toJson(),
     );
     if (response.statusCode == 200) {
-      final Map<String, dynamic> data = jsonDecode(response.body);
-      return Member.fromJson(data);
+      if (response.body.isEmpty) {
+        return getMemberById(id);
+      }
+
+      final decoded = jsonDecode(response.body);
+
+      if (decoded is Map<String, dynamic>) {
+        return Member.fromJson(decoded);
+      }
+
+      if (decoded is bool && decoded) {
+        return getMemberById(id);
+      }
+
+      throw Exception('Unexpected update response format');
     } else {
       throw Exception(
         response.body.isNotEmpty ? response.body : 'Failed to update member',

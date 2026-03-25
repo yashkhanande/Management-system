@@ -7,7 +7,7 @@ class Task {
   String? status; // NOT_STARTED / TODO / DONE / OVERDUE
   String? category;
   String ownerId;
-  String? parentTaskId;
+  String? parentId;
   int progress; // 0-100
   int contributionPercent;
   String? remark;
@@ -17,6 +17,8 @@ class Task {
   int completedTask;
   int? criticalDays;
   bool? isProject;
+  List<String>? collaborators;
+  List<String>? dependentTasks;
 
   Task({
     this.id,
@@ -27,7 +29,7 @@ class Task {
     this.status,
     this.category,
     required this.ownerId,
-    this.parentTaskId,
+    this.parentId,
     this.progress = 0,
     this.contributionPercent = 0,
     this.remark,
@@ -37,6 +39,8 @@ class Task {
     this.remainingTask = 0,
     this.completedTask = 0,
     this.isProject,
+    this.collaborators,
+    this.dependentTasks,
   });
 
   factory Task.fromJson(Map<String, dynamic> json) {
@@ -56,7 +60,7 @@ class Task {
       status: json['status'],
       category: json['category'] ?? json['projectCategory'],
       ownerId: json['ownerId'] ?? '',
-      parentTaskId: json['parentTaskId'] ?? null,
+      parentId: json['parentId'] ?? null,
       progress: json['progress'] ?? 0,
       contributionPercent: rawContribution is num
           ? rawContribution.toInt()
@@ -76,6 +80,12 @@ class Task {
                 : int.tryParse(json['criticalDays'].toString()))
           : 7, //default 7 days
       isProject: json['isProject'] ?? false,
+      collaborators: json['collaborators'] != null
+          ? List<String>.from(json['collaborators'])
+          : null,
+      dependentTasks: json['dependentTasks'] != null
+          ? List<String>.from(json['dependentTasks'])
+          : null,
     );
   }
 
@@ -92,7 +102,7 @@ class Task {
       "status": status,
       "category": category,
       "ownerId": ownerId,
-      "parentTaskId": parentTaskId,
+      "parentId": parentId,
       "progress": progress,
       "contributionPercent": contributionPercent,
       "contribution": contributionPercent,
@@ -105,6 +115,8 @@ class Task {
       "completedTask": completedTask,
       "criticalDays": criticalDays ?? 7,
       "isProject": isProject ?? false,
+      "collaborators": collaborators,
+      "dependentTasks": dependentTasks,
     };
   }
 }

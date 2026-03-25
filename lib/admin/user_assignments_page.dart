@@ -150,7 +150,7 @@ class _UserAssignmentsPageState extends State<UserAssignmentsPage> {
 
   Task? _findParentProject(Task task) {
     for (final candidate in _taskController.tasks) {
-      final sameId = candidate.id == task.parentTaskId;
+      final sameId = candidate.id == task.parentId;
       final isProject = (candidate.type ?? '').toUpperCase() == 'PROJECT';
       if (sameId && isProject) {
         return candidate;

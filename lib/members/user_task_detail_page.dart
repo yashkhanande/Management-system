@@ -29,9 +29,9 @@ class _UserTaskDetailPageState extends State<UserTaskDetailPage> {
     final taskId = widget.task.id;
     if (taskId == null || taskId.isEmpty) return;
 
-    // Filter tasks where parentTaskId matches this task
+    // Filter tasks where parentId matches this task
     _subtasks.value = _taskController.tasks
-        .where((t) => t.parentTaskId == taskId)
+        .where((t) => t.parentId == taskId)
         .toList();
   }
 
@@ -58,7 +58,7 @@ class _UserTaskDetailPageState extends State<UserTaskDetailPage> {
         type: widget.task.type,
         status: widget.task.status,
         ownerId: widget.task.ownerId,
-        parentTaskId: widget.task.parentTaskId,
+        parentId: widget.task.parentId,
         progress: widget.task.progress,
         contributionPercent: 0,
         remark: widget.task.remark,
@@ -73,7 +73,7 @@ class _UserTaskDetailPageState extends State<UserTaskDetailPage> {
     }
 
     final result = await Get.to(
-      () => AddTask(defaultType: 'TASK', parentTaskId: taskId),
+      () => AddTask(defaultType: 'TASK', parentId: taskId),
     );
 
     // Refresh subtasks when returning from add page

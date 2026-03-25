@@ -539,7 +539,7 @@ class EmployeeDetailsPage extends StatelessWidget {
                               final parent = _taskController.tasks
                                   .firstWhereOrNull(
                                     (candidate) =>
-                                        candidate.id == t.parentTaskId &&
+                                        candidate.id == t.parentId &&
                                         (candidate.type ?? '').toUpperCase() ==
                                             'PROJECT',
                                   );
@@ -606,7 +606,7 @@ class EmployeeDetailsPage extends StatelessWidget {
                               final parent = _taskController.tasks
                                   .firstWhereOrNull(
                                     (candidate) =>
-                                        candidate.id == t.parentTaskId &&
+                                        candidate.id == t.parentId &&
                                         (candidate.type ?? '').toUpperCase() ==
                                             'PROJECT',
                                   );

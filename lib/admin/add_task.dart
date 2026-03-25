@@ -9,13 +9,13 @@ import 'package:managementt/model/task.dart';
 
 class AddTask extends StatefulWidget {
   final String defaultType;
-  final String? parentTaskId;
+  final String? parentId;
   final Task? taskToEdit;
 
   const AddTask({
     super.key,
     this.defaultType = 'PROJECT',
-    this.parentTaskId,
+    this.parentId,
     this.taskToEdit,
   });
 
@@ -24,6 +24,8 @@ class AddTask extends StatefulWidget {
 }
 
 class _AddTaskState extends State<AddTask> with TickerProviderStateMixin {
+  static const String _noneCategoryValue = '__NONE__';
+
   final TextEditingController titleController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
   final TextEditingController memberSearchController = TextEditingController();
@@ -145,10 +147,11 @@ class _AddTaskState extends State<AddTask> with TickerProviderStateMixin {
     descriptionController.text = task.description;
     priorityController.value = task.priority.toLowerCase();
     selectedMemberId.value = task.ownerId;
-    final category = (task.category ?? '').trim().toUpperCase();
-    selectedCategory.value = _categoryController.categories.contains(category)
-      ? category
-      : '';
+    final category = (task.category ?? '').trim();
+    final matchedCategory = _categoryController.categories.firstWhereOrNull(
+      (item) => item.trim().toLowerCase() == category.toLowerCase(),
+    );
+    selectedCategory.value = matchedCategory ?? '';
     selectedDeadline.value = task.deadLine;
     selectedStartDate.value = task.startDate;
     criticalDaysController.text = task.criticalDays.toString();
@@ -173,8 +176,8 @@ class _AddTaskState extends State<AddTask> with TickerProviderStateMixin {
 
   bool get _isProjectTask =>
       widget.defaultType.toUpperCase() == 'TASK' &&
-      widget.parentTaskId != null &&
-      widget.parentTaskId!.isNotEmpty;
+      widget.parentId != null &&
+      widget.parentId!.isNotEmpty;
 
   bool get _isEditMode =>
       widget.taskToEdit != null &&
@@ -185,11 +188,11 @@ class _AddTaskState extends State<AddTask> with TickerProviderStateMixin {
       _isEditMode ? widget.taskToEdit!.contributionPercent : 0;
 
   int get _assignedContribution {
-    final parentId = widget.parentTaskId;
+    final parentId = widget.parentId;
     if (parentId == null || parentId.isEmpty) return 0;
     return _taskController.tasks
         .where((task) => (task.type ?? '').toUpperCase() == 'TASK')
-        .where((task) => task.parentTaskId == parentId)
+        .where((task) => task.parentId == parentId)
         .fold<int>(0, (sum, task) => sum + task.contributionPercent);
   }
 
@@ -381,9 +384,7 @@ class _AddTaskState extends State<AddTask> with TickerProviderStateMixin {
                                 children: [
                                   _buildLabel("Category (Optional)"),
                                   const SizedBox(height: 8),
-                                  Obx(
-                                    () => _buildCategoryDropdown(),
-                                  ),
+                                  Obx(() => _buildCategoryDropdown()),
                                 ],
                               ),
                             ),
@@ -401,21 +402,38 @@ class _AddTaskState extends State<AddTask> with TickerProviderStateMixin {
                                     () => Row(
                                       children: [
                                         _buildPriorityChip(
-                                          "high",
-                                          "High",
+                                          "Critical",
+                                          "Critical",
                                           Icons.bolt_rounded,
-                                          color: AppColors.priorityHigh,
+                                          color: const Color.fromARGB(
+                                            255,
+                                            255,
+                                            0,
+                                            0,
+                                          ),
                                         ),
                                         const SizedBox(width: 10),
                                         _buildPriorityChip(
-                                          "medium",
-                                          "Medium",
+                                          "High",
+                                          "High",
+                                          Icons.bolt_rounded,
+                                          color: const Color.fromARGB(
+                                            255,
+                                            255,
+                                            120,
+                                            10,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 10),
+                                        _buildPriorityChip(
+                                          "Moderate",
+                                          "Moderate",
                                           Icons.remove_circle_outline,
                                           color: AppColors.priorityMedium,
                                         ),
                                         const SizedBox(width: 10),
                                         _buildPriorityChip(
-                                          "low",
+                                          "Low",
                                           "Low",
                                           Icons.arrow_downward_rounded,
                                           color: AppColors.priorityLow,
@@ -1005,17 +1023,18 @@ class _AddTaskState extends State<AddTask> with TickerProviderStateMixin {
         ),
       ),
       icon: const Icon(Icons.keyboard_arrow_down_rounded),
-      items: _categoryController.categories
-          .map(
-            (category) => DropdownMenuItem<String>(
-              value: category,
-              child: Text(
-                category,
-                style: const TextStyle(fontSize: 14),
-              ),
-            ),
-          )
-          .toList(),
+      items: [
+        const DropdownMenuItem<String>(
+          value: _noneCategoryValue,
+          child: Text('None', style: TextStyle(fontSize: 14)),
+        ),
+        ..._categoryController.categories.map(
+          (category) => DropdownMenuItem<String>(
+            value: category,
+            child: Text(category, style: const TextStyle(fontSize: 14)),
+          ),
+        ),
+      ],
       onChanged: (value) {
         selectedCategory.value = value ?? '';
       },
@@ -1211,11 +1230,13 @@ class _AddTaskState extends State<AddTask> with TickerProviderStateMixin {
       priority: priorityController.value,
       type: widget.taskToEdit?.type ?? widget.defaultType,
       status: widget.taskToEdit?.status ?? 'NOT_STARTED',
-      category: selectedCategory.value.isEmpty
+      category: selectedCategory.value == _noneCategoryValue
+          ? null
+          : selectedCategory.value.isEmpty
           ? widget.taskToEdit?.category
           : selectedCategory.value,
       ownerId: selectedMemberId.value,
-      parentTaskId: widget.taskToEdit?.parentTaskId ?? widget.parentTaskId,
+      parentId: widget.taskToEdit?.parentId ?? widget.parentId,
       contributionPercent: _isProjectTask ? contributionValue : 0,
       deadLine: selectedDeadline.value,
       startDate: selectedStartDate.value,

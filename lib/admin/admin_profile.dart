@@ -6,14 +6,14 @@ import 'package:managementt/controller/admin_nav_controller.dart';
 import 'package:managementt/controller/auth_controller.dart';
 import 'package:managementt/controller/profile_controller.dart';
 
-class MemberProfilePage extends StatefulWidget {
-  const MemberProfilePage({super.key});
+class AdminProfilePage extends StatefulWidget {
+  const AdminProfilePage({super.key});
 
   @override
-  State<MemberProfilePage> createState() => _MemberProfilePageState();
+  State<AdminProfilePage> createState() => _AdminProfilePageState();
 }
 
-class _MemberProfilePageState extends State<MemberProfilePage> {
+class _AdminProfilePageState extends State<AdminProfilePage> {
   final showProjects = false.obs;
   final isEditing = false.obs;
   final showPasswordSection = false.obs;
@@ -772,7 +772,6 @@ class _MemberProfilePageState extends State<MemberProfilePage> {
 }
 
 // ─── Supporting widgets ───
-
 
 class _InfoRow extends StatelessWidget {
   final IconData icon;

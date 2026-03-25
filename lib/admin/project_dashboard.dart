@@ -107,8 +107,8 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
 
     if (selectedCategory.value != 'ALL') {
       allTasks = allTasks.where((t) {
-        final taskCategory = (t.category ?? '').trim().toUpperCase();
-        return taskCategory == selectedCategory.value;
+        final taskCategory = (t.category ?? '').trim().toLowerCase();
+        return taskCategory == selectedCategory.value.trim().toLowerCase();
       }).toList();
     }
 
@@ -397,7 +397,9 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
                               onPressed: () =>
                                   Get.to(() => const ManageCategoriesPage()),
                               style: TextButton.styleFrom(
-                                backgroundColor: Colors.white.withValues(alpha: 0.15),
+                                backgroundColor: Colors.white.withValues(
+                                  alpha: 0.15,
+                                ),
                                 minimumSize: const Size(0, 28),
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 8,

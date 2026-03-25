@@ -27,7 +27,6 @@ class _ManageCategoriesPageState extends State<ManageCategoriesPage> {
         content: TextField(
           controller: controller,
           autofocus: true,
-          textCapitalization: TextCapitalization.characters,
           decoration: const InputDecoration(
             hintText: 'Enter category',
             border: OutlineInputBorder(),
@@ -45,9 +44,12 @@ class _ManageCategoriesPageState extends State<ManageCategoriesPage> {
                   ? await _categoryController.updateCategory(oldValue, value)
                   : await _categoryController.addCategory(value);
               if (!ok) {
+                final details = _categoryController.lastError.value.trim();
                 Get.snackbar(
                   'Category not saved',
-                  'It may be empty or already exists.',
+                  details.isEmpty
+                      ? 'It may be empty or already exists.'
+                      : details,
                   backgroundColor: AppColors.warning,
                   colorText: Colors.white,
                 );
@@ -72,9 +74,9 @@ class _ManageCategoriesPageState extends State<ManageCategoriesPage> {
   }
 
   Future<void> _deleteCategory(String value) async {
-    final normalized = value.trim().toUpperCase();
+    final normalized = value.trim().toLowerCase();
     final inUseCount = _taskController.projects.where((project) {
-      final projectCategory = (project.category ?? '').trim().toUpperCase();
+      final projectCategory = (project.category ?? '').trim().toLowerCase();
       return projectCategory == normalized;
     }).length;
 
@@ -118,9 +120,7 @@ class _ManageCategoriesPageState extends State<ManageCategoriesPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Manage Categories'),
-      ),
+      appBar: AppBar(title: const Text('Manage Categories')),
       body: Obx(() {
         final categories = _categoryController.categories;
 

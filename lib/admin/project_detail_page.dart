@@ -6,6 +6,7 @@ import 'package:managementt/components/date_time_helper.dart';
 import 'package:managementt/controller/auth_controller.dart';
 import 'package:managementt/controller/member_controller.dart';
 import 'package:managementt/controller/task_controller.dart';
+import 'package:managementt/members/collaboration_page.dart';
 import 'package:managementt/model/task.dart';
 
 class ProjectDetailPage extends StatefulWidget {
@@ -32,7 +33,7 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
     Get.to(
       () => AddTask(
         defaultType: task.type ?? 'TASK',
-        parentTaskId: task.parentTaskId,
+        parentId: task.parentId,
         taskToEdit: task,
       ),
     );
@@ -78,7 +79,7 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
       type: task.type,
       status: 'TODO',
       ownerId: task.ownerId,
-      parentTaskId: task.parentTaskId,
+      parentId: task.parentId,
       progress: 0,
       contributionPercent: task.contributionPercent,
       remark: task.remark,
@@ -169,7 +170,7 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
 
     var all = _taskController.tasks.where((t) {
       final isTask = (t.type ?? '').toUpperCase() == 'TASK';
-      return isTask && t.parentTaskId == parentId;
+      return isTask && t.parentId == parentId;
     }).toList();
 
     // Apply search filter
@@ -212,7 +213,7 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
 
     final all = _taskController.tasks.where((t) {
       final isTask = (t.type ?? '').toUpperCase() == 'TASK';
-      return isTask && t.parentTaskId == parentId;
+      return isTask && t.parentId == parentId;
     }).toList();
 
     switch (filter) {
@@ -254,17 +255,6 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
   String _deadlineText(DateTime? d) {
     return DateTimeHelper.remainingDaysLabel(d);
   }
-
-  int get _assignedContribution {
-    final parentId = widget.project.id;
-    if (parentId == null || parentId.isEmpty) return 0;
-    return _taskController.tasks
-        .where((t) => (t.type ?? '').toUpperCase() == 'TASK')
-        .where((t) => t.parentTaskId == parentId)
-        .fold<int>(0, (sum, t) => sum + t.contributionPercent);
-  }
-
-  int get _remainingContribution => (100 - _assignedContribution).clamp(0, 100);
 
   String _dateShort(DateTime? d) {
     if (d == null) return '-';
@@ -490,7 +480,6 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
                               Text(
                                 'Project Leader: ${_memberNameById(project.ownerId)}',
                                 maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
                                   color: Colors.white.withValues(alpha: 0.9),
                                   fontSize: 13,
@@ -498,9 +487,18 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
                                 ),
                               ),
                               const SizedBox(height: 4),
-                             
                             ],
                           ),
+                        ),
+                        const Spacer(),
+                        IconButton(
+                          onPressed: () {
+                            Get.to(
+                              () => CollaborationPage(),
+                              arguments: project.id,
+                            );
+                          },
+                          icon: Icon(Icons.people, color: Colors.white),
                         ),
                       ],
                     ),
@@ -797,7 +795,7 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
                         Get.to(
                           () => AddTask(
                             defaultType: 'TASK',
-                            parentTaskId: widget.project.id,
+                            parentId: widget.project.id,
                           ),
                         );
                       },

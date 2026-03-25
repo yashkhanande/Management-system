@@ -14,6 +14,19 @@ class TaskService {
     }
   }
 
+  Future<void> addCollaborator(String taskId, String projectId) async {
+    final response = await _api.post(
+      '/tasks/collaboratedProject/add/$taskId',
+      body: projectId,
+    );
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw Exception(
+        response.body.isNotEmpty ? response.body : 'Failed to add collaborator',
+      );
+    }
+  }
+
+
   Future<Task> getTaskById(String id) async {
     final response = await _api.get('/tasks/id/$id');
     if (response.statusCode == 200) {
@@ -43,6 +56,16 @@ class TaskService {
     return [...results[0], ...results[1]];
   }
 
+  Future<List<Task>> getAllProjects() async {
+    final response = await _api.get('/tasks/projects');
+    if (response.statusCode == 200) {
+      final List data = jsonDecode(response.body);
+      return data.map((e) => Task.fromJson(e)).toList();
+    } else {
+      throw Exception('Failed to fetch projects');
+    }
+  }
+
   Future<List<Task>> getTaskByOwner(String id) async {
     final response = await _api.get('/tasks/member/$id');
     if (response.statusCode == 200) {
@@ -50,6 +73,15 @@ class TaskService {
       return data.map((e) => Task.fromJson(e)).toList();
     } else {
       throw Exception('Failed to fetch tasks for owner');
+    }
+  }
+  Future <List<Task>> getCollaboratedProjects(String id) async {
+    final response = await _api.get('/tasks/getCollaboratedProject/$id');
+    if (response.statusCode == 200) {
+      final List data = jsonDecode(response.body);
+      return data.map((e) => Task.fromJson(e)).toList();
+    } else {
+      throw Exception('Failed to fetch collaborators ' + response.body);
     }
   }
 

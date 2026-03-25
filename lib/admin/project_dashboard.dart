@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
-import 'package:managementt/admin/add_task.dart';
 import 'package:managementt/admin/manage_categories_page.dart';
 import 'package:managementt/admin/project_detail_page.dart';
 import 'package:managementt/components/app_confirm_dialog.dart';
@@ -298,23 +296,6 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
                                   color: Colors.white,
                                   fontSize: 28,
                                   fontWeight: FontWeight.bold,
-                                ),
-                              ),
-
-                              const Spacer(),
-                              InkWell(
-                                onTap: () => Get.to(() => AddTask()),
-                                child: Container(
-                                  padding: const EdgeInsets.all(8),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white.withValues(alpha: 0.15),
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: const FaIcon(
-                                    FontAwesomeIcons.plus,
-                                    color: Colors.white,
-                                    size: 16,
-                                  ),
                                 ),
                               ),
                             ],

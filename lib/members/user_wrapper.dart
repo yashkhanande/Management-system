@@ -6,7 +6,6 @@ import 'package:managementt/members/user_dashboard.dart';
 import 'package:managementt/members/user_project_dashboard.dart';
 import 'package:managementt/members/user_task_dashboard.dart';
 import 'package:managementt/members/user_analytics.dart';
-import 'package:managementt/members/member_profile.dart';
 
 class UserWrapper extends StatelessWidget {
   UserWrapper({super.key});
@@ -18,11 +17,19 @@ class UserWrapper extends StatelessWidget {
     const UserProjectDashboard(),
     const UserTaskDashboard(),
     const UserAnalyticsPage(),
-    const MemberProfilePage(),
   ];
 
   @override
   Widget build(BuildContext context) {
+    if (navController.currentIndex.value >= _pages.length) {
+      navController.currentIndex.value = 0;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (navController.pageController.hasClients) {
+          navController.pageController.jumpToPage(0);
+        }
+      });
+    }
+
     return Scaffold(
       extendBody: true,
       body: PageView(

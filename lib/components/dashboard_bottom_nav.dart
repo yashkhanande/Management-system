@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:managementt/admin/add_task.dart';
 import 'package:managementt/components/app_colors.dart';
 import 'package:managementt/controller/admin_nav_controller.dart';
 
@@ -30,11 +31,6 @@ class DashboardBottomNav extends StatelessWidget {
       activeIcon: Icons.bar_chart_rounded,
       label: 'Analytics',
     ),
-    _NavItem(
-      icon: Icons.person_outline_rounded,
-      activeIcon: Icons.person_rounded,
-      label: 'Profile',
-    ),
   ];
 
   @override
@@ -45,6 +41,7 @@ class DashboardBottomNav extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.fromLTRB(20, 0, 20, bottomPadding + 14),
       child: Container(
+        constraints: const BoxConstraints(minHeight: 76, maxHeight: 76),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(32),
           // Multi-layer shadow for realistic depth
@@ -97,7 +94,10 @@ class DashboardBottomNav extends StatelessWidget {
                 final selected = controller.currentIndex.value;
                 return LayoutBuilder(
                   builder: (context, constraints) {
-                    final itemWidth = constraints.maxWidth / _items.length;
+                    const totalSlots = 5;
+                    final slotWidth = constraints.maxWidth / totalSlots;
+                    final selectedSlot = selected < 2 ? selected : selected + 1;
+
                     return Stack(
                       clipBehavior: Clip.none,
                       children: [
@@ -105,10 +105,10 @@ class DashboardBottomNav extends StatelessWidget {
                         AnimatedPositioned(
                           duration: const Duration(milliseconds: 400),
                           curve: Curves.easeOutCubic,
-                          left: selected * itemWidth + 6,
+                          left: selectedSlot * slotWidth + 6,
                           top: -2,
                           bottom: -2,
-                          width: itemWidth - 12,
+                          width: slotWidth - 12,
                           child: AnimatedContainer(
                             duration: const Duration(milliseconds: 400),
                             curve: Curves.easeOutCubic,
@@ -137,12 +137,21 @@ class DashboardBottomNav extends StatelessWidget {
 
                         // ---- Nav items ----
                         Row(
-                          children: List.generate(_items.length, (i) {
+                          children: List.generate(totalSlots, (slot) {
+                            if (slot == 2) {
+                              return Expanded(
+                                child: _AddProjectButton(
+                                  onTap: () => Get.to(() => AddTask()),
+                                ),
+                              );
+                            }
+
+                            final itemIndex = slot < 2 ? slot : slot - 1;
                             return Expanded(
                               child: _NavButton(
-                                item: _items[i],
-                                isSelected: selected == i,
-                                onTap: () => controller.changePage(i),
+                                item: _items[itemIndex],
+                                isSelected: selected == itemIndex,
+                                onTap: () => controller.changePage(itemIndex),
                               ),
                             );
                           }),
@@ -153,6 +162,48 @@ class DashboardBottomNav extends StatelessWidget {
                 );
               }),
             ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _AddProjectButton extends StatelessWidget {
+  final VoidCallback onTap;
+
+  const _AddProjectButton({required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 56,
+      child: Align(
+        alignment: Alignment.center,
+        child: GestureDetector(
+          onTap: () {
+            HapticFeedback.mediumImpact();
+            onTap();
+          },
+          child: Container(
+            width: 42,
+            height: 42,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: const LinearGradient(
+                colors: [Color(0xFF4F46E5), Color(0xFF7C3AED)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.primary.withValues(alpha: 0.38),
+                  blurRadius: 14,
+                  offset: const Offset(0, 6),
+                ),
+              ],
+            ),
+            child: const Icon(Icons.add_rounded, color: Colors.white, size: 24),
           ),
         ),
       ),

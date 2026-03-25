@@ -9,8 +9,10 @@ import 'package:managementt/components/donut_chart.dart';
 import 'package:managementt/components/project_card.dart';
 import 'package:managementt/components/section_header.dart';
 import 'package:managementt/components/stat_card.dart';
+import 'package:managementt/controller/auth_controller.dart';
 import 'package:managementt/controller/user_nav_controller.dart';
 import 'package:managementt/controller/user_dashboard_controller.dart';
+import 'package:managementt/members/member_profile.dart';
 import 'package:managementt/members/user_project_dashboard.dart';
 import 'package:managementt/service/task_service.dart';
 
@@ -34,6 +36,9 @@ class UserDashboard extends StatelessWidget {
           final statusData = dc.statusData;
           final criticalAlerts = dc.criticalAlerts;
           final upcomingDeadlines = dc.deadlineItems;
+          final loginId = AuthController.to.username.value.trim();
+          final avatarLetter =
+              loginId.isNotEmpty ? loginId[0].toUpperCase() : '?';
 
           final totalStatusCount = statusData.fold<int>(
             0,
@@ -69,20 +74,49 @@ class UserDashboard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        "Welcome back,",
-                        style: TextStyle(
-                          color: Colors.white.withValues(alpha: 0.8),
-                          fontSize: 16,
-                        ),
-                      ),
-                      Text(
-                        dc.welcomeName,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 28,
-                        ),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "Welcome back,",
+                                  style: TextStyle(
+                                    color: Colors.white.withValues(alpha: 0.8),
+                                    fontSize: 16,
+                                  ),
+                                ),
+                                Text(
+                                  dc.welcomeName,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 28,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () => Get.to(() => const MemberProfilePage()),
+                            child: CircleAvatar(
+                              radius: 21,
+                              backgroundColor: Colors.white.withValues(
+                                alpha: 0.22,
+                              ),
+                              child: Text(
+                                avatarLetter,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                       const SizedBox(height: 4),
                       Text(

@@ -8,7 +8,6 @@ import 'package:managementt/components/dashboard_bottom_nav.dart';
 import 'package:managementt/controller/admin_nav_controller.dart';
 import 'package:managementt/controller/dashboard_controller.dart';
 import 'package:managementt/controller/task_controller.dart';
-import 'package:managementt/admin/admin_profile.dart';
 
 class AdminWrapper extends StatefulWidget {
   const AdminWrapper({super.key});
@@ -33,10 +32,16 @@ class _AdminWrapperState extends State<AdminWrapper> {
       ProjectDashboard(),
       EmployeeDashboard(),
       const AnalyticsPage(),
-      const AdminProfilePage(),
     ];
 
+    if (navController.currentIndex.value >= _pages.length) {
+      navController.currentIndex.value = 0;
+    }
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (navController.pageController.hasClients) {
+        navController.pageController.jumpToPage(navController.currentIndex.value);
+      }
       dashboardController.loadDashboard();
       taskController.getAllTask();
     });

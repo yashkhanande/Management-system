@@ -7,8 +7,10 @@ import 'package:managementt/components/dashboard_tiles.dart';
 import 'package:managementt/components/donut_chart.dart';
 import 'package:managementt/components/section_header.dart';
 import 'package:managementt/components/stat_card.dart';
+import 'package:managementt/controller/auth_controller.dart';
 import 'package:managementt/controller/dashboard_controller.dart';
 import 'package:managementt/service/task_service.dart';
+import 'package:managementt/admin/admin_profile.dart';
 
 class AdminDashboard extends StatelessWidget {
   const AdminDashboard({super.key});
@@ -32,6 +34,10 @@ class AdminDashboard extends StatelessWidget {
           final criticalAlerts = dc.criticalAlerts;
           final upcomingDeadlines = dc.deadlineItems;
           final recentActivity = dc.activityItems;
+          final loginId = AuthController.to.username.value.trim();
+          final avatarLetter = loginId.isNotEmpty
+              ? loginId.characters.first.toUpperCase()
+              : '?';
 
           final totalStatusCount = statusData.fold<int>(
             0,
@@ -67,20 +73,49 @@ class AdminDashboard extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          "Welcome back,",
-                          style: TextStyle(
-                            color: Colors.white.withValues(alpha: 0.8),
-                            fontSize: 16,
-                          ),
-                        ),
-                        Text(
-                          dc.welcomeName,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 28,
-                          ),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "Welcome back,",
+                                    style: TextStyle(
+                                      color: Colors.white.withValues(alpha: 0.8),
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                  Text(
+                                    dc.welcomeName,
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 28,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            GestureDetector(
+                              onTap: () => Get.to(() => const AdminProfilePage()),
+                              child: CircleAvatar(
+                                radius: 21,
+                                backgroundColor: Colors.white.withValues(
+                                  alpha: 0.22,
+                                ),
+                                child: Text(
+                                  avatarLetter,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                         const SizedBox(height: 4),
                         Text(

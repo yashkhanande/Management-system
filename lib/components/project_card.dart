@@ -13,6 +13,7 @@ class ProjectCard extends StatelessWidget {
   final List<String> teamMembers;
   final Color accentColor;
   final VoidCallback? onTap;
+  final VoidCallback? onEdit;
 
   const ProjectCard({
     super.key,
@@ -27,6 +28,7 @@ class ProjectCard extends StatelessWidget {
     this.teamMembers = const ['A', 'R', 'K'],
     this.accentColor = const Color(0xFF2F59F7),
     this.onTap,
+    this.onEdit,
   });
 
   @override
@@ -94,25 +96,45 @@ class ProjectCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                if (dueText != null)
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 7,
-                      vertical: 2,
-                    ),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFFEEF0),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      dueText!,
-                      style: const TextStyle(
-                        fontSize: 10,
-                        color: Color(0xFFFF4D57),
-                        fontWeight: FontWeight.w700,
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (dueText != null)
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 7,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFFEEF0),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          dueText!,
+                          style: const TextStyle(
+                            fontSize: 10,
+                            color: Color(0xFFFF4D57),
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
+                    if (onEdit != null) ...[
+                      const SizedBox(width: 4),
+                      InkWell(
+                        onTap: onEdit,
+                        borderRadius: BorderRadius.circular(8),
+                        child: const Padding(
+                          padding: EdgeInsets.all(4),
+                          child: Icon(
+                            Icons.edit_outlined,
+                            size: 16,
+                            color: Color(0xFF4B5563),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
               ],
             ),
             const SizedBox(height: 8),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:managementt/admin/add_task.dart';
 import 'package:managementt/admin/manage_categories_page.dart';
 import 'package:managementt/admin/project_detail_page.dart';
 import 'package:managementt/components/app_confirm_dialog.dart';
@@ -7,6 +8,7 @@ import 'package:managementt/components/app_colors.dart';
 import 'package:managementt/components/date_time_helper.dart';
 import 'package:managementt/components/app_render_entrance.dart';
 import 'package:managementt/components/project_card.dart';
+import 'package:managementt/controller/auth_controller.dart';
 import 'package:managementt/controller/category_controller.dart';
 import 'package:managementt/controller/dashboard_controller.dart';
 import 'package:managementt/controller/task_controller.dart';
@@ -65,6 +67,31 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
 
   List<String> get _projectCategoryOptions =>
       categoryController.dropdownOptions;
+
+  String get _normalizedRole =>
+      AuthController.to.role.value.trim().toUpperCase();
+
+  String get _sessionUserId => AuthController.to.currentUserId.value.trim();
+
+  String get _sessionUsername => AuthController.to.username.value.trim();
+
+  bool get _isAdminSession => _normalizedRole == 'ADMIN';
+
+  bool _canManageProject(Task project) {
+    if (_isAdminSession) return true;
+
+    final ownerId = project.ownerId.trim();
+    if (ownerId.isEmpty) return false;
+    final normalizedOwner = ownerId.toLowerCase();
+
+    bool matches(String candidate) {
+      final value = candidate.trim();
+      if (value.isEmpty) return false;
+      return value.toLowerCase() == normalizedOwner;
+    }
+
+    return matches(_sessionUserId) || matches(_sessionUsername);
+  }
 
   List<Task> getFilteredTasks() {
     final projects = taskController.projects;
@@ -460,6 +487,16 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
                           ),
                           teamMembers: [dc.getMemberInitials(task.ownerId)],
                           accentColor: dc.projectAccent(task),
+                          onEdit: _canManageProject(task)
+                              ? () {
+                                  Get.to(
+                                    () => AddTask(
+                                      defaultType: 'PROJECT',
+                                      taskToEdit: task,
+                                    ),
+                                  );
+                                }
+                              : null,
                           onTap: () {
                             Get.to(
                               () => ProjectDetailPage(

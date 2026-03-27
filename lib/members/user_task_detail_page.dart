@@ -19,6 +19,41 @@ class _UserTaskDetailPageState extends State<UserTaskDetailPage> {
   final TaskController _taskController = Get.find<TaskController>();
   final RxList<Task> _subtasks = <Task>[].obs;
 
+  String get _normalizedRole =>
+      AuthController.to.role.value.trim().toUpperCase();
+
+  String get _sessionUserId => AuthController.to.currentUserId.value.trim();
+
+  String get _sessionUsername => AuthController.to.username.value.trim();
+
+  bool get _isAdminSession => _normalizedRole == 'ADMIN';
+
+  bool get _isTaskOwnerSession {
+    final ownerId = widget.task.ownerId.trim();
+    if (ownerId.isEmpty) return false;
+    final normalizedOwner = ownerId.toLowerCase();
+
+    bool matches(String candidate) {
+      final value = candidate.trim();
+      if (value.isEmpty) return false;
+      return value.toLowerCase() == normalizedOwner;
+    }
+
+    return matches(_sessionUserId) || matches(_sessionUsername);
+  }
+
+  bool get _canModifyTask => _isAdminSession || _isTaskOwnerSession;
+
+  void _openTaskEditor(Task task) {
+    Get.to(
+      () => AddTask(
+        defaultType: 'TASK',
+        parentId: task.parentId,
+        taskToEdit: task,
+      ),
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -199,6 +234,15 @@ class _UserTaskDetailPageState extends State<UserTaskDetailPage> {
                           ],
                         ),
                       ),
+                      if (_canModifyTask)
+                        IconButton(
+                          onPressed: () => _openTaskEditor(task),
+                          tooltip: 'Modify task',
+                          icon: const Icon(
+                            Icons.edit_outlined,
+                            color: Colors.white,
+                          ),
+                        ),
                     ],
                   ),
                   const SizedBox(height: 16),

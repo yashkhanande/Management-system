@@ -29,6 +29,10 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
   final RxString _selectedFilter = 'ALL'.obs;
   final RxString _taskSearchQuery = ''.obs;
 
+  void _openProjectEditor(Task project) {
+    Get.to(() => AddTask(defaultType: 'PROJECT', taskToEdit: project));
+  }
+
   void _openTaskEditor(Task task) {
     Get.to(
       () => AddTask(
@@ -344,7 +348,9 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
         matches(_currentUsername);
   }
 
-  bool get _canApproveTasks => _isAdminSession || _isProjectOwnerSession;
+  bool get _canManageProject => _isAdminSession || _isProjectOwnerSession;
+
+  bool get _canApproveTasks => _canManageProject;
 
   String _resolveActorIdForApproval() {
     if (_isAdminSession) {
@@ -479,7 +485,7 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
                               const SizedBox(height: 4),
                               Text(
                                 'Project Leader: ${_memberNameById(project.ownerId)}',
-                                maxLines: 1,
+                                maxLines: 2,
                                 style: TextStyle(
                                   color: Colors.white.withValues(alpha: 0.9),
                                   fontSize: 13,
@@ -491,6 +497,15 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
                           ),
                         ),
                         const Spacer(),
+                        if (_canManageProject)
+                          IconButton(
+                            onPressed: () => _openProjectEditor(project),
+                            tooltip: 'Modify project',
+                            icon: const Icon(
+                              Icons.edit_outlined,
+                              color: Colors.white,
+                            ),
+                          ),
                         IconButton(
                           onPressed: () {
                             Get.to(
@@ -498,7 +513,7 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
                               arguments: project.id,
                             );
                           },
-                          icon: Icon(Icons.people, color: Colors.white),
+                          icon: const Icon(Icons.people, color: Colors.white),
                         ),
                       ],
                     ),
@@ -921,8 +936,12 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
                         task: t,
                         deadlineText: _deadlineText(t.deadLine),
                         ownerName: _memberNameById(t.ownerId),
-                        onModify: () => _openTaskEditor(t),
-                        onUndone: AppColors.isCompletedStatus(t.status)
+                        onModify: _canManageProject
+                          ? () => _openTaskEditor(t)
+                          : null,
+                        onUndone:
+                          _canManageProject &&
+                            AppColors.isCompletedStatus(t.status)
                             ? () => _undoCompletedTask(t)
                             : null,
                         onApprove: showApprove ? () => _approveTask(t) : null,
@@ -1123,34 +1142,36 @@ class _TaskCard extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(width: 6),
-                          PopupMenuButton<_TaskQuickAction>(
-                            tooltip: 'Task actions',
-                            onSelected: (action) {
-                              if (action == _TaskQuickAction.modify) {
-                                onModify?.call();
-                                return;
-                              }
-                              if (action == _TaskQuickAction.undone) {
-                                onUndone?.call();
-                              }
-                            },
-                            itemBuilder: (context) => [
-                              const PopupMenuItem<_TaskQuickAction>(
-                                value: _TaskQuickAction.modify,
-                                child: Text('MODIFY'),
+                          if (onModify != null || onUndone != null)
+                            PopupMenuButton<_TaskQuickAction>(
+                              tooltip: 'Task actions',
+                              onSelected: (action) {
+                                if (action == _TaskQuickAction.modify) {
+                                  onModify?.call();
+                                  return;
+                                }
+                                if (action == _TaskQuickAction.undone) {
+                                  onUndone?.call();
+                                }
+                              },
+                              itemBuilder: (context) => [
+                                PopupMenuItem<_TaskQuickAction>(
+                                  value: _TaskQuickAction.modify,
+                                  enabled: onModify != null,
+                                  child: const Text('MODIFY'),
+                                ),
+                                PopupMenuItem<_TaskQuickAction>(
+                                  value: _TaskQuickAction.undone,
+                                  enabled: onUndone != null,
+                                  child: const Text('UNDONE'),
+                                ),
+                              ],
+                              icon: const Icon(
+                                Icons.edit_outlined,
+                                size: 18,
+                                color: Color(0xFF475569),
                               ),
-                              PopupMenuItem<_TaskQuickAction>(
-                                value: _TaskQuickAction.undone,
-                                enabled: onUndone != null,
-                                child: const Text('UNDONE'),
-                              ),
-                            ],
-                            icon: const Icon(
-                              Icons.edit_outlined,
-                              size: 18,
-                              color: Color(0xFF475569),
                             ),
-                          ),
                         ],
                       ),
                       const SizedBox(height: 4),

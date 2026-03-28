@@ -101,6 +101,7 @@ class _AdminProfilePageState extends State<AdminProfilePage> {
                             onTap: () {
                               final nav = Get.find<AdminNavController>();
                               nav.changePage(0);
+                              Get.back();
                             },
                             child: Container(
                               padding: const EdgeInsets.all(8),

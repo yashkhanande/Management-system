@@ -1,10 +1,14 @@
 import 'package:get/get.dart';
+import 'package:managementt/controller/auth_controller.dart';
 import 'package:managementt/model/category.dart';
 import 'package:managementt/service/category_service.dart';
 
 class CategoryController extends GetxController {
   final CategoryService _categoryService = CategoryService();
+  final AuthController _auth = AuthController.to;
   final Map<String, String> _categoryIdByValue = <String, String>{};
+  Worker? _authWorker;
+  String _lastLoadedToken = '';
 
   final RxList<String> categories = <String>[].obs;
   final RxBool isLoading = false.obs;
@@ -13,12 +17,49 @@ class CategoryController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    loadCategories();
+    // Categories API requires a valid session token. Watch auth state and
+    // fetch as soon as session restoration/login is complete.
+    _authWorker = everAll([
+      _auth.isLoading,
+      _auth.isLoggedIn,
+      _auth.accessToken,
+    ], (_) => _syncWithAuthState());
+    _syncWithAuthState();
+  }
+
+  @override
+  void onClose() {
+    _authWorker?.dispose();
+    super.onClose();
   }
 
   List<String> get dropdownOptions => ['ALL', ...categories];
 
+  void _syncWithAuthState() {
+    if (_auth.isLoading.value) return;
+
+    final token = _auth.accessToken.value.trim();
+    final loggedIn = _auth.isLoggedIn.value;
+
+    if (!loggedIn || token.isEmpty) {
+      categories.clear();
+      _categoryIdByValue.clear();
+      _lastLoadedToken = '';
+      return;
+    }
+
+    // Avoid duplicate fetches for the same token unless categories are empty.
+    if (_lastLoadedToken == token && categories.isNotEmpty) return;
+
+    _lastLoadedToken = token;
+    loadCategories();
+  }
+
   Future<void> loadCategories() async {
+    if (_auth.accessToken.value.trim().isEmpty) {
+      return;
+    }
+
     isLoading.value = true;
     lastError.value = '';
     try {

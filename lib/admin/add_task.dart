@@ -174,6 +174,10 @@ class _AddTaskState extends State<AddTask> with TickerProviderStateMixin {
     super.dispose();
   }
 
+  bool get _isProjectCreation =>
+      widget.defaultType.toUpperCase() == 'PROJECT' &&
+      (widget.parentId == null || widget.parentId!.isEmpty);
+
   bool get _isProjectTask =>
       widget.defaultType.toUpperCase() == 'TASK' &&
       widget.parentId != null &&
@@ -281,7 +285,11 @@ class _AddTaskState extends State<AddTask> with TickerProviderStateMixin {
                           ),
                           const SizedBox(height: 20),
                           Text(
-                            _isEditMode ? "Modify\nTask" : "Create\nNew Task",
+                            _isEditMode
+                                ? "Modify\nTask"
+                                : _isProjectCreation
+                                ? "Create\nNew Project"
+                                : "Create\nNew Task",
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 28,
@@ -294,6 +302,8 @@ class _AddTaskState extends State<AddTask> with TickerProviderStateMixin {
                           Text(
                             _isEditMode
                                 ? "Update task details and assignment"
+                                : _isProjectCreation
+                                ? "Set up project details, timeline, and leadership"
                                 : _isProjectTask
                                 ? "Assign work and distribute the remaining project contribution"
                                 : "Assign work and set priorities for your team",
@@ -345,11 +355,17 @@ class _AddTaskState extends State<AddTask> with TickerProviderStateMixin {
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  _buildLabel("Task Title"),
+                                  _buildLabel(
+                                    _isProjectCreation
+                                        ? "Project Title"
+                                        : "Task Title",
+                                  ),
                                   const SizedBox(height: 8),
                                   _buildTextField(
                                     controller: titleController,
-                                    hint: "Enter task title",
+                                    hint: _isProjectCreation
+                                        ? "Enter project name"
+                                        : "Enter task title",
                                     icon: Icons.title_rounded,
                                   ),
                                 ],
@@ -363,11 +379,17 @@ class _AddTaskState extends State<AddTask> with TickerProviderStateMixin {
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  _buildLabel("Description"),
+                                  _buildLabel(
+                                    _isProjectCreation
+                                        ? "Project Description"
+                                        : "Description",
+                                  ),
                                   const SizedBox(height: 8),
                                   _buildTextField(
                                     controller: descriptionController,
-                                    hint: "Describe the task...",
+                                    hint: _isProjectCreation
+                                        ? "Describe the project scope and objectives..."
+                                        : "Describe the task...",
                                     icon: Icons.description_outlined,
                                     maxLines: 3,
                                   ),
@@ -585,7 +607,11 @@ class _AddTaskState extends State<AddTask> with TickerProviderStateMixin {
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  _buildLabel("Assign To"),
+                                  _buildLabel(
+                                    _isProjectCreation
+                                        ? "Project Leader"
+                                        : "Assign To",
+                                  ),
                                   const SizedBox(height: 8),
                                   // Search bar
                                   TextField(
@@ -594,7 +620,9 @@ class _AddTaskState extends State<AddTask> with TickerProviderStateMixin {
                                         v.trim().toLowerCase(),
                                     style: const TextStyle(fontSize: 14),
                                     decoration: InputDecoration(
-                                      hintText: "Search employees by name",
+                                      hintText: _isProjectCreation
+                                          ? "Search project leader"
+                                          : "Search employees by name",
                                       hintStyle: TextStyle(
                                         color: Colors.grey[400],
                                         fontSize: 13,
@@ -850,12 +878,20 @@ class _AddTaskState extends State<AddTask> with TickerProviderStateMixin {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(
-                  isEdit ? Icons.edit_rounded : Icons.add_task_rounded,
+                  isEdit
+                      ? Icons.edit_rounded
+                      : _isProjectCreation
+                      ? Icons.add_rounded
+                      : Icons.add_task_rounded,
                   size: 20,
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  isEdit ? 'Modify Task' : 'Create Task',
+                  isEdit
+                      ? 'Modify Task'
+                      : _isProjectCreation
+                      ? 'Create Project'
+                      : 'Create Task',
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
@@ -994,50 +1030,186 @@ class _AddTaskState extends State<AddTask> with TickerProviderStateMixin {
   }
 
   Widget _buildCategoryDropdown() {
-    return DropdownButtonFormField<String>(
-      value: selectedCategory.value.isEmpty ? null : selectedCategory.value,
-      isExpanded: true,
-      hint: const Text(
-        'Select category',
-        style: TextStyle(
-          color: AppColors.textSecondary,
+    final isSelected =
+        selectedCategory.value.isNotEmpty &&
+        selectedCategory.value != _noneCategoryValue;
+
+    return SizedBox(
+      height: 50,
+      child: DropdownButtonFormField<String>(
+        initialValue: selectedCategory.value.isEmpty
+            ? null
+            : selectedCategory.value,
+        isExpanded: true,
+        menuMaxHeight: 280,
+        borderRadius: BorderRadius.circular(14),
+        icon: Icon(
+          Icons.keyboard_arrow_down_rounded,
+          color: AppColors.primary.withValues(alpha: 0.7),
+          size: 22,
+        ),
+        dropdownColor: Colors.white,
+        style: const TextStyle(
+          color: Color(0xFF1F2937),
           fontSize: 14,
           fontWeight: FontWeight.w500,
         ),
-      ),
-      decoration: InputDecoration(
-        filled: true,
-        fillColor: const Color(0xFFF8F9FC),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.grey.withValues(alpha: 0.2)),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.grey.withValues(alpha: 0.2)),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
-        ),
-      ),
-      icon: const Icon(Icons.keyboard_arrow_down_rounded),
-      items: [
-        const DropdownMenuItem<String>(
-          value: _noneCategoryValue,
-          child: Text('None', style: TextStyle(fontSize: 14)),
-        ),
-        ..._categoryController.categories.map(
-          (category) => DropdownMenuItem<String>(
-            value: category,
-            child: Text(category, style: const TextStyle(fontSize: 14)),
+        hint: const Text(
+          'Select category',
+          style: TextStyle(
+            color: AppColors.textSecondary,
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
           ),
         ),
-      ],
-      onChanged: (value) {
-        selectedCategory.value = value ?? '';
-      },
+        decoration: InputDecoration(
+          filled: true,
+          fillColor: isSelected
+              ? AppColors.primary.withValues(alpha: 0.06)
+              : const Color(0xFFF8F9FC),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 12,
+            vertical: 12,
+          ),
+          prefixIcon: Padding(
+            padding: const EdgeInsets.only(left: 12, right: 8),
+            child: Icon(
+              Icons.category_rounded,
+              size: 20,
+              color: isSelected
+                  ? AppColors.primary
+                  : AppColors.textSecondary.withValues(alpha: 0.6),
+            ),
+          ),
+          prefixIconConstraints: const BoxConstraints(
+            minWidth: 42,
+            minHeight: 24,
+          ),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(14),
+            borderSide: BorderSide(
+              color: Colors.grey.withValues(alpha: 0.2),
+              width: 1,
+            ),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(14),
+            borderSide: BorderSide(
+              color: isSelected
+                  ? AppColors.primary.withValues(alpha: 0.5)
+                  : Colors.grey.withValues(alpha: 0.2),
+              width: isSelected ? 1.5 : 1,
+            ),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(14),
+            borderSide: const BorderSide(color: AppColors.primary, width: 2),
+          ),
+          errorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(14),
+            borderSide: const BorderSide(color: Colors.red, width: 1.5),
+          ),
+        ),
+        selectedItemBuilder: (context) {
+          return [
+            _noneCategoryValue,
+            ..._categoryController.categories,
+          ].map<Widget>((String value) {
+            final isNone = value == _noneCategoryValue;
+            return Align(
+              alignment: Alignment.centerLeft,
+              child: Row(
+                children: [
+                  Container(
+                    width: 8,
+                    height: 8,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: isNone
+                          ? Colors.grey.withValues(alpha: 0.4)
+                          : AppColors.primary,
+                    ),
+                    margin: const EdgeInsets.only(right: 8),
+                  ),
+                  Expanded(
+                    child: Text(
+                      isNone ? 'None' : value,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: isNone
+                            ? AppColors.textSecondary
+                            : AppColors.primary,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }).toList();
+        },
+        items: [
+          DropdownMenuItem<String>(
+            value: _noneCategoryValue,
+            child: Row(
+              children: [
+                Container(
+                  width: 6,
+                  height: 6,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.grey.withValues(alpha: 0.4),
+                  ),
+                  margin: const EdgeInsets.only(right: 10),
+                ),
+                const Text(
+                  'None',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          ..._categoryController.categories.map(
+            (category) => DropdownMenuItem<String>(
+              value: category,
+              child: Row(
+                children: [
+                  Container(
+                    width: 8,
+                    height: 8,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: AppColors.primary.withValues(alpha: 0.8),
+                    ),
+                    margin: const EdgeInsets.only(right: 10),
+                  ),
+                  Expanded(
+                    child: Text(
+                      category,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: Color(0xFF1F2937),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+        onChanged: (value) {
+          selectedCategory.value = value ?? '';
+        },
+      ),
     );
   }
 
@@ -1048,40 +1220,135 @@ class _AddTaskState extends State<AddTask> with TickerProviderStateMixin {
   }) {
     return GestureDetector(
       onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 250),
+        curve: Curves.easeOut,
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         decoration: BoxDecoration(
-          color: const Color(0xFFF8F9FC),
-          borderRadius: BorderRadius.circular(12),
+          color: date != null
+              ? AppColors.primary.withValues(alpha: 0.06)
+              : const Color(0xFFF8F9FC),
+          borderRadius: BorderRadius.circular(14),
           border: Border.all(
             color: date != null
-                ? AppColors.primary.withValues(alpha: 0.4)
+                ? AppColors.primary.withValues(alpha: 0.6)
                 : Colors.grey.withValues(alpha: 0.2),
+            width: date != null ? 1.5 : 1,
           ),
+          boxShadow: date != null
+              ? [
+                  BoxShadow(
+                    color: AppColors.primary.withValues(alpha: 0.08),
+                    blurRadius: 12,
+                    offset: const Offset(0, 2),
+                  ),
+                ]
+              : [],
         ),
         child: Row(
           children: [
-            Icon(
-              Icons.calendar_today_rounded,
-              size: 16,
-              color: date != null ? AppColors.primary : AppColors.textSecondary,
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                date != null ? "${date.day}/${date.month}/${date.year}" : label,
-                style: TextStyle(
-                  fontSize: 13,
-                  color: date != null
-                      ? const Color(0xFF1F2937)
-                      : Colors.grey[400],
-                ),
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: date != null
+                    ? AppColors.primary.withValues(alpha: 0.12)
+                    : Colors.grey.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(
+                Icons.calendar_today_rounded,
+                size: 18,
+                color: date != null
+                    ? AppColors.primary
+                    : AppColors.textSecondary.withValues(alpha: 0.6),
               ),
             ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    date != null ? _formatDate(date) : label,
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: date != null
+                          ? FontWeight.w600
+                          : FontWeight.w500,
+                      color: date != null
+                          ? AppColors.primary
+                          : Colors.grey[400],
+                    ),
+                  ),
+                  if (date != null)
+                    Text(
+                      _getDayName(date),
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w400,
+                        color: AppColors.textSecondary.withValues(alpha: 0.7),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            if (date != null) ...[
+              const SizedBox(width: 12),
+              GestureDetector(
+                onTap: () {
+                  // Clear the date by setting to null
+                  // We need to handle this in parent - for now just visual
+                },
+                child: Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: Colors.red.withValues(alpha: 0.08),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Icon(
+                    Icons.close_rounded,
+                    size: 16,
+                    color: Colors.red.withValues(alpha: 0.7),
+                  ),
+                ),
+              ),
+            ],
           ],
         ),
       ),
     );
+  }
+
+  String _formatDate(DateTime date) {
+    final months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
+    return '${date.day} ${months[date.month - 1]} ${date.year}';
+  }
+
+  String _getDayName(DateTime date) {
+    final days = [
+      'Monday',
+      'Tuesday',
+      'Wednesday',
+      'Thursday',
+      'Friday',
+      'Saturday',
+      'Sunday',
+    ];
+    return days[date.weekday - 1];
   }
 
   Future<void> _pickDate(Rx<DateTime?> target) async {

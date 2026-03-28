@@ -186,8 +186,8 @@ class _AddProjectButton extends StatelessWidget {
             onTap();
           },
           child: Container(
-            width: 42,
-            height: 42,
+            width: 50,
+            height: 50,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               gradient: const LinearGradient(
@@ -203,7 +203,7 @@ class _AddProjectButton extends StatelessWidget {
                 ),
               ],
             ),
-            child: const Icon(Icons.add_rounded, color: Colors.white, size: 24),
+            child: const Icon(Icons.add_rounded, color: Colors.white, size: 30),
           ),
         ),
       ),

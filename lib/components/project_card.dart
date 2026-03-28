@@ -118,21 +118,6 @@ class ProjectCard extends StatelessWidget {
                           ),
                         ),
                       ),
-                    if (onEdit != null) ...[
-                      const SizedBox(width: 4),
-                      InkWell(
-                        onTap: onEdit,
-                        borderRadius: BorderRadius.circular(8),
-                        child: const Padding(
-                          padding: EdgeInsets.all(4),
-                          child: Icon(
-                            Icons.edit_outlined,
-                            size: 16,
-                            color: Color(0xFF4B5563),
-                          ),
-                        ),
-                      ),
-                    ],
                   ],
                 ),
               ],

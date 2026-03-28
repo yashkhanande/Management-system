@@ -187,7 +187,8 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
           Expanded(
             child: _buildFilterDropdown(
               value: selectedProgress.value,
-              hintText: 'project progress',
+              hintText: 'Status',
+              icon: Icons.pie_chart_outline_rounded,
               options: _projectProgressOptions.keys.toList(),
               labelBuilder: (value) => _projectProgressOptions[value] ?? value,
               onChanged: (value) {
@@ -200,7 +201,8 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
           Expanded(
             child: _buildFilterDropdown(
               value: selectedPriority.value,
-              hintText: 'project priority',
+              hintText: 'Priority',
+              icon: Icons.flag_outlined,
               options: _projectPriorityOptions,
               labelBuilder: (value) => value,
               onChanged: (value) {
@@ -213,7 +215,8 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
           Expanded(
             child: _buildFilterDropdown(
               value: selectedCategory.value,
-              hintText: 'project categories',
+              hintText: 'Category',
+              icon: Icons.category_outlined,
               options: _projectCategoryOptions,
               labelBuilder: (value) => value,
               onChanged: (value) {
@@ -230,50 +233,104 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
   Widget _buildFilterDropdown({
     required String value,
     required String hintText,
+    required IconData icon,
     required List<String> options,
     required String Function(String value) labelBuilder,
     required ValueChanged<String?> onChanged,
   }) {
+    final isDefault = value == 'ALL';
+
     return SizedBox(
-      height: 42,
+      height: 46,
       child: DropdownButtonFormField<String>(
-        value: value,
+        initialValue: value,
         isExpanded: true,
-        iconEnabledColor: Colors.white,
-        dropdownColor: const Color(0xFF4F46E5),
+        menuMaxHeight: 300,
+        borderRadius: BorderRadius.circular(16),
+        icon: Icon(
+          Icons.keyboard_arrow_down_rounded,
+          color: Colors.white.withValues(alpha: 0.95),
+          size: 20,
+        ),
+        dropdownColor: Colors.white,
         style: const TextStyle(
           color: Colors.white,
-          fontSize: 11,
-          fontWeight: FontWeight.w600,
+          fontSize: 11.5,
+          fontWeight: FontWeight.w700,
         ),
         decoration: InputDecoration(
           hintText: hintText,
           hintStyle: TextStyle(
-            color: Colors.white.withValues(alpha: 0.8),
-            fontSize: 11,
+            color: Colors.white.withValues(alpha: 0.74),
+            fontSize: 11.5,
+            fontWeight: FontWeight.w600,
+          ),
+          prefixIcon: Icon(
+            icon,
+            size: 16,
+            color: Colors.white.withValues(alpha: isDefault ? 0.82 : 0.98),
+          ),
+          prefixIconConstraints: const BoxConstraints(
+            minWidth: 32,
+            minHeight: 18,
           ),
           filled: true,
-          fillColor: Colors.white.withValues(alpha: 0.12),
+          fillColor: Colors.white.withValues(alpha: isDefault ? 0.13 : 0.22),
           contentPadding: const EdgeInsets.symmetric(
             horizontal: 10,
-            vertical: 8,
+            vertical: 10,
           ),
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide.none,
+            borderRadius: BorderRadius.circular(14),
+            borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.24)),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(14),
+            borderSide: BorderSide(
+              color: Colors.white.withValues(alpha: isDefault ? 0.24 : 0.45),
+            ),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(14),
+            borderSide: const BorderSide(color: Colors.white, width: 1.2),
           ),
         ),
-        items: options
-            .map(
-              (option) => DropdownMenuItem<String>(
-                value: option,
-                child: Text(
-                  labelBuilder(option),
-                  overflow: TextOverflow.ellipsis,
+        selectedItemBuilder: (context) {
+          return options
+              .map(
+                (option) => Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    option == 'ALL' ? hintText : labelBuilder(option),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 11.5,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
                 ),
+              )
+              .toList();
+        },
+        items: options.map((option) {
+          final isSelected = option == value;
+          return DropdownMenuItem<String>(
+            value: option,
+            child: Text(
+              option == 'ALL' ? 'All' : labelBuilder(option),
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: isSelected
+                    ? AppColors.primaryDark
+                    : const Color(0xFF1F2937),
+                fontSize: 12,
+                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
               ),
-            )
-            .toList(),
+            ),
+          );
+        }).toList(),
         onChanged: onChanged,
       ),
     );
@@ -296,7 +353,7 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
               /// HEADER
               SliverAppBar(
                 pinned: true,
-                expandedHeight: 330,
+                expandedHeight: 290,
                 backgroundColor: Colors.transparent,
                 flexibleSpace: FlexibleSpaceBar(
                   background: Container(
@@ -310,12 +367,18 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
                       ),
                     ),
                     child: Padding(
-                      padding: EdgeInsets.fromLTRB(20, topPad + 16, 20, 24),
+                      // padding: EdgeInsets.fromLTRB(20, topPad + 16, 20, 24),
+                      padding: EdgeInsets.only(
+                        top: topPad + 16,
+                        left: 20,
+                        right: 20,
+                      ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           /// TITLE
                           Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               const Text(
                                 "Projects",
@@ -323,6 +386,31 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
                                   color: Colors.white,
                                   fontSize: 28,
                                   fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              TextButton(
+                                onPressed: () =>
+                                    Get.to(() => const ManageCategoriesPage()),
+                                style: TextButton.styleFrom(
+                                  backgroundColor: Colors.white.withValues(
+                                    alpha: 0.15,
+                                  ),
+                                  minimumSize: const Size(0, 28),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 0,
+                                  ),
+                                  tapTargetSize:
+                                      MaterialTapTargetSize.shrinkWrap,
+                                ),
+                                child: Text(
+                                  'Manage Project Categories',
+                                  style: TextStyle(
+                                    color: Colors.white.withValues(alpha: 0.95),
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w700,
+                                    decoration: TextDecoration.none,
+                                  ),
                                 ),
                               ),
                             ],
@@ -353,7 +441,7 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
                                   color: Colors.green,
                                 ),
                                 _StatChip(
-                                  label: 'Completed',
+                                  label: 'Done',
                                   count: tasks
                                       .where((t) => t.status == 'DONE')
                                       .length,
@@ -396,34 +484,6 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
                                 ),
                               ),
                               style: const TextStyle(color: Colors.white),
-                            ),
-                          ),
-                          SizedBox(height: 19),
-                          Align(
-                            alignment: Alignment.centerRight,
-                            child: TextButton(
-                              onPressed: () =>
-                                  Get.to(() => const ManageCategoriesPage()),
-                              style: TextButton.styleFrom(
-                                backgroundColor: Colors.white.withValues(
-                                  alpha: 0.15,
-                                ),
-                                minimumSize: const Size(0, 28),
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                  vertical: 0,
-                                ),
-                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                              ),
-                              child: Text(
-                                'Manage Project Categories',
-                                style: TextStyle(
-                                  color: Colors.white.withValues(alpha: 0.95),
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w700,
-                                  decoration: TextDecoration.none,
-                                ),
-                              ),
                             ),
                           ),
                         ],

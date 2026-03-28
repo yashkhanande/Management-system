@@ -509,8 +509,9 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
                         IconButton(
                           onPressed: () {
                             Get.to(
-                              () => CollaborationPage(),
-                              arguments: project.id,
+                              () => CollaborationPage(
+                                projectId: (project.id ?? '').trim(),
+                              ),
                             );
                           },
                           icon: const Icon(Icons.people, color: Colors.white),
@@ -937,11 +938,11 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
                         deadlineText: _deadlineText(t.deadLine),
                         ownerName: _memberNameById(t.ownerId),
                         onModify: _canManageProject
-                          ? () => _openTaskEditor(t)
-                          : null,
+                            ? () => _openTaskEditor(t)
+                            : null,
                         onUndone:
-                          _canManageProject &&
-                            AppColors.isCompletedStatus(t.status)
+                            _canManageProject &&
+                                AppColors.isCompletedStatus(t.status)
                             ? () => _undoCompletedTask(t)
                             : null,
                         onApprove: showApprove ? () => _approveTask(t) : null,

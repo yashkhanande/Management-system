@@ -25,7 +25,7 @@ class _ManageCategoriesPageState extends State<ManageCategoriesPage> {
         initialValue: oldValue ?? '',
         onSubmit: (value) async {
           final ok = isEdit
-              ? await _categoryController.updateCategory(oldValue!, value)
+              ? await _categoryController.updateCategory(oldValue, value)
               : await _categoryController.addCategory(value);
 
           if (ok) return null;

@@ -149,7 +149,7 @@ class _UserTaskDashboardState extends State<UserTaskDashboard> {
                               color: const Color(0xFF4ADE80),
                             ),
                             _StatChip(
-                              label: 'Completed',
+                              label: 'Done',
                               count: tasks
                                   .where((t) => t.status == 'DONE')
                                   .length,

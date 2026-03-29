@@ -11,6 +11,7 @@ import 'package:managementt/controller/auth_controller.dart';
 import 'package:managementt/controller/dashboard_controller.dart';
 import 'package:managementt/service/task_service.dart';
 import 'package:managementt/admin/admin_profile.dart';
+import 'package:managementt/components/notification_page.dart';
 
 class AdminDashboard extends StatelessWidget {
   const AdminDashboard({super.key});
@@ -99,6 +100,17 @@ class AdminDashboard extends StatelessWidget {
                                   ),
                                 ],
                               ),
+                            ),
+                            IconButton(
+                              onPressed: () =>
+                                  Get.to(() => const NotificationPage()),
+                              icon: const Icon(
+                                Icons.notifications_none_rounded,
+                                color: Colors.white,
+                                size: 26,
+                              ),
+                              splashRadius: 22,
+                              tooltip: 'Notifications',
                             ),
                             GestureDetector(
                               onTap: () =>

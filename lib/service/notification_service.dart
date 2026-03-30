@@ -23,9 +23,9 @@ class NotificationService {
     }
 
     throw Exception(
-      response.body.isNotEmpty
-          ? response.body
-          : 'Failed to load notifications',
+      response.body.isNotEmpty ? response.body : 'Failed to load notifications',
     );
   }
+
+  
 }

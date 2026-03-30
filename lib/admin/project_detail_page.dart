@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:managementt/admin/add_task.dart';
 import 'package:managementt/components/app_colors.dart';
 import 'package:managementt/components/date_time_helper.dart';
+import 'package:managementt/components/message_page.dart';
 import 'package:managementt/controller/auth_controller.dart';
 import 'package:managementt/controller/collaboration_controller.dart';
 import 'package:managementt/controller/member_controller.dart';
@@ -734,13 +735,27 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'Project Members',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w700,
-                              color: Color(0xFF1F2937),
-                            ),
+                          Row(
+                            children: [
+                              const Text(
+                                'Project Members',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w700,
+                                  color: Color(0xFF1F2937),
+                                ),
+                              ),
+                              const Spacer(),
+                              InkWell(
+                                onTap: () {
+                                  Get.to(
+                                    () => MessagePage(),
+                                    arguments: project.id,
+                                  );
+                                },
+                                child: const Icon(Icons.message),
+                              ),
+                            ],
                           ),
                           const SizedBox(height: 12),
                           Wrap(

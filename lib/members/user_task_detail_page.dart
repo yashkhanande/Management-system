@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:managementt/admin/add_task.dart';
 import 'package:managementt/components/app_colors.dart';
+import 'package:managementt/components/message_page.dart';
 import 'package:managementt/controller/auth_controller.dart';
 import 'package:managementt/controller/task_controller.dart';
 import 'package:managementt/model/task.dart';
@@ -71,7 +72,7 @@ class _UserTaskDetailPageState extends State<UserTaskDetailPage> {
   }
 
   Future<void> _convertTaskToProjectAndAddSubtasks() async {
-    final taskId = widget.task.id; 
+    final taskId = widget.task.id;
     if (taskId == null || taskId.isEmpty) {
       Get.snackbar(
         'Error',
@@ -206,29 +207,47 @@ class _UserTaskDetailPageState extends State<UserTaskDetailPage> {
                       ),
                       const SizedBox(width: 10),
                       Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                        child: Row(
                           children: [
-                            Text(
-                              task.description,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                color: Colors.white.withValues(alpha: 0.85),
-                                fontSize: 13,
-                                fontWeight: FontWeight.w500,
-                              ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  task.title,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 24,
+                                    height: 1.02,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+
+                                const SizedBox(height: 2),
+                                Text(
+                                  task.description,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    color: Colors.white.withValues(alpha: 0.85),
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
                             ),
-                            const SizedBox(height: 2),
-                            Text(
-                              task.title,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
+                            Spacer(),
+                            InkWell(
+                              onTap: () {
+                                Get.to(
+                                  () => MessagePage(),
+                                  arguments: task.parentId,
+                                );
+                              },
+                              child: const Icon(
+                                Icons.message,
                                 color: Colors.white,
-                                fontSize: 24,
-                                height: 1.02,
-                                fontWeight: FontWeight.w700,
                               ),
                             ),
                           ],

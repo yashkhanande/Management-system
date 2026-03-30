@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:managementt/model/remark.dart';
 import 'package:managementt/model/task.dart';
 import 'package:managementt/service/api_service.dart';
 
@@ -190,6 +191,34 @@ class TaskService {
     } catch (e) {
       print('TaskService: Failed — $e');
       return {};
+    }
+  }
+
+  Future<void> addRemark(String senderId, String taskId, String message) async {
+    final response = await _api.post(
+      '/tasks/remark/add/$taskId',
+      body: {'senderId': senderId, 'message': message},
+    );
+    print(senderId);
+    print(taskId);
+    print(message);
+
+    if (response.statusCode == 200) {
+      print("Remark added successfully to id: $taskId");
+    } else if (response.statusCode != 200) {
+      throw Exception(
+        response.body.isNotEmpty ? response.body : 'Failed to add remark',
+      );
+    }
+  }
+
+  Future<List<Remark>> getRemarks(String taskId) async {
+    final response = await _api.get('/tasks/getAllRemarks/$taskId');
+    if (response.statusCode == 200) {
+      final List data = jsonDecode(response.body);
+      return List<Remark>.from(data.map((e) => Remark.fromJson(e)));
+    } else {
+      throw Exception('Failed to fetch remarks');
     }
   }
 }

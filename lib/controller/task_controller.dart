@@ -1,7 +1,9 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:managementt/controller/auth_controller.dart';
 import 'package:managementt/controller/dashboard_controller.dart';
 import 'package:managementt/controller/profile_controller.dart';
+import 'package:managementt/model/remark.dart';
 import 'package:managementt/model/task.dart';
 import 'package:managementt/service/task_service.dart';
 
@@ -85,7 +87,7 @@ class TaskController extends GetxController {
       isLoading.value = false;
     }
   }
-  
+
   Future<void> getAllProjects() async {
     isLoading.value = true;
     try {
@@ -124,6 +126,7 @@ class TaskController extends GetxController {
       isLoading.value = false;
     }
   }
+
   Future<bool> updateTaskType(String id) async {
     isLoading.value = true;
     try {
@@ -214,6 +217,32 @@ class TaskController extends GetxController {
     } catch (e) {
       Get.snackbar('Error', 'Failed to approve completion: $e');
       return false;
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<bool> addRemark(String senderId, String taskId, String message) async {
+    isLoading.value = true;
+    try {
+      await _taskService.addRemark(senderId, taskId, message);
+      await fetchRemarks(taskId);
+      return true;
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to add remark: $e');
+      return false;
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  var remarkList = <Remark>[].obs;
+  Future<void> fetchRemarks(String taskId) async {
+    isLoading.value = true;
+    try {
+      remarkList.value = await _taskService.getRemarks(taskId);
+    } catch (e) {
+      remarkList.value = [];
     } finally {
       isLoading.value = false;
     }

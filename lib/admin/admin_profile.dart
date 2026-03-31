@@ -98,10 +98,7 @@ class _AdminProfilePageState extends State<AdminProfilePage> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           GestureDetector(
-                            onTap: () {
-                              final nav = Get.find<AdminNavController>();
-                              nav.changePage(0);
-                            },
+                            onTap: () => Get.back(),
                             child: Container(
                               padding: const EdgeInsets.all(8),
                               decoration: BoxDecoration(

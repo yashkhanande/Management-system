@@ -282,6 +282,7 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
   @override
   Widget build(BuildContext context) {
     final topPad = MediaQuery.of(context).padding.top;
+    final bottomNavSpace = MediaQuery.of(context).padding.bottom + 80;
 
     return Scaffold(
       backgroundColor: AppColors.scaffoldBackground,
@@ -296,7 +297,7 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
               /// HEADER
               SliverAppBar(
                 pinned: true,
-                expandedHeight: 330,
+                expandedHeight: 288,
                 backgroundColor: Colors.transparent,
                 flexibleSpace: FlexibleSpaceBar(
                   background: Container(
@@ -338,7 +339,8 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
                           /// STATS
                           Obx(() {
                             final tasks = taskController.projects;
-                            return Wrap(
+                            return Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               children: [
                                 _StatChip(
                                   label: 'Total',
@@ -353,7 +355,7 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
                                   color: Colors.green,
                                 ),
                                 _StatChip(
-                                  label: 'Completed',
+                                  label: 'Done',
                                   count: tasks
                                       .where((t) => t.status == 'DONE')
                                       .length,
@@ -435,7 +437,7 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
 
               /// LIST
               SliverPadding(
-                padding: const EdgeInsets.all(12),
+                padding: EdgeInsets.fromLTRB(12, 12, 12, bottomNavSpace),
                 sliver: Obx(() {
                   final tasks = getFilteredTasks();
                   final _ = taskController.searchQuery.value;
@@ -487,16 +489,16 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
                           ),
                           teamMembers: [dc.getMemberInitials(task.ownerId)],
                           accentColor: dc.projectAccent(task),
-                          onEdit: _canManageProject(task)
-                              ? () {
-                                  Get.to(
-                                    () => AddTask(
-                                      defaultType: 'PROJECT',
-                                      taskToEdit: task,
-                                    ),
-                                  );
-                                }
-                              : null,
+                          // onEdit: _canManageProject(task)
+                          //     ? () {
+                          //         Get.to(
+                          //           () => AddTask(
+                          //             defaultType: 'PROJECT',
+                          //             taskToEdit: task,
+                          //           ),
+                          //         );
+                          //       }
+                          //     : null,
                           onTap: () {
                             Get.to(
                               () => ProjectDetailPage(
@@ -536,7 +538,7 @@ class _StatChip extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       margin: EdgeInsets.all(5),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(20),

@@ -47,6 +47,7 @@ class AddCollaboration extends StatelessWidget {
                     projectId,
                     project.id ?? '',
                   );
+                  collaborationController.getCollaboratedProjects(projectId!);
 
                   collaborationController.getAllTasksByCollaboration(
                     projectId!,

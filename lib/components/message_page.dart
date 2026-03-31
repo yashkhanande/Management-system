@@ -21,6 +21,10 @@ class MessagePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     _taskController.fetchRemarks(projectId);
+    print("Project ID: $projectId");
+    print(
+      "_profileController.member.value!.id: ${_profileController.member.value!.id}",
+    );
 
     return Scaffold(
       appBar: AppBar(

@@ -155,10 +155,18 @@ class CollaborationPage extends StatelessWidget {
                               ),
                             ),
 
-                            const Icon(
-                              Icons.arrow_forward_ios,
-                              size: 16,
-                              color: Colors.grey,
+                            IconButton(
+                              icon: Icon(
+                                Icons.delete,
+                                size: 16,
+                                color: Colors.grey,
+                              ),
+                              onPressed: () {
+                                collaborationController.removeCollaborator(
+                                  projectId ?? '',
+                                  collaborator.id ?? '',
+                                );
+                              },
                             ),
                           ],
                         ),

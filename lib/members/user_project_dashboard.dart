@@ -137,9 +137,8 @@ class _UserProjectDashboardState extends State<UserProjectDashboard> {
 
                       /// STAT CHIPS
                       Obx(() {
-                        return Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
+                        return Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+
                           children: [
                             _StatChip(
                               label: 'Total',
@@ -154,7 +153,7 @@ class _UserProjectDashboardState extends State<UserProjectDashboard> {
                               color: const Color(0xFF4ADE80),
                             ),
                             _StatChip(
-                              label: 'Completed',
+                              label: 'Done',
                               count: taskController.userProjects
                                   .where((t) => t.status == 'DONE')
                                   .length,
@@ -316,7 +315,7 @@ class _StatChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(20),

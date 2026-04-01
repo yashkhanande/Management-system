@@ -139,6 +139,16 @@ class _UserTaskDetailPageState extends State<UserTaskDetailPage> {
       );
       return;
     }
+    final canSubmit = await _taskController.checkForSubmit(taskId);
+    if (!canSubmit) {
+      Get.snackbar(
+        'Error',
+        'Failed to submit for review: some dependencies are not met.',
+        backgroundColor: AppColors.error,
+        colorText: Colors.white,
+      );
+      return;
+    }
 
     final ok = await _taskController.submitTaskForReview(
       taskId: taskId,
@@ -146,9 +156,7 @@ class _UserTaskDetailPageState extends State<UserTaskDetailPage> {
       actorRole: AuthController.to.role.value,
     );
 
-    final canSubmit = await _taskController.checkForSubmit(taskId);
-
-    if (ok && canSubmit) {
+    if (ok) {
       setState(() {
         widget.task.status = 'REVIEW';
       });
@@ -158,16 +166,7 @@ class _UserTaskDetailPageState extends State<UserTaskDetailPage> {
         backgroundColor: AppColors.success,
         colorText: Colors.white,
       );
-    } else {
-      if (!canSubmit) {
-        Get.snackbar(
-          'Error',
-          'Failed to submit for review: some dependencies are not met.',
-          backgroundColor: AppColors.error,
-          colorText: Colors.white,
-        );
-      }
-    }
+    } else {}
   }
 
   @override

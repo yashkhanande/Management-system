@@ -155,7 +155,7 @@ class EmployeeDashboard extends StatelessWidget {
                       const SizedBox(height: 4),
 
                       Text(
-                        "Team overview · $formattedDate",
+                        "Employee overview · $formattedDate",
                         style: TextStyle(
                           color: Colors.white.withValues(alpha: 0.7),
                           fontSize: 13,
@@ -374,24 +374,6 @@ class _EmployeeCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 2),
                   ],
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 5,
-                  vertical: 1.5,
-                ),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFEFF6FF),
-                  borderRadius: BorderRadius.circular(7),
-                ),
-                child: Text(
-                  member.role ?? 'Employee',
-                  style: const TextStyle(
-                    color: Color(0xFF1D4ED8),
-                    fontSize: 9,
-                    fontWeight: FontWeight.w600,
-                  ),
                 ),
               ),
               SizedBox(

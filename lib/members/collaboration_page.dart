@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:managementt/admin/project_detail_page.dart';
 import 'package:managementt/components/add_collaboration.dart';
+import 'package:managementt/components/app_colors.dart';
 import 'package:managementt/controller/collaboration_controller.dart';
 
 class CollaborationPage extends StatelessWidget {
@@ -15,15 +16,15 @@ class CollaborationPage extends StatelessWidget {
     collaborationController.getCollaboratedProjects(projectId);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF6F8FA),
+      backgroundColor: AppColors.scaffoldBackground,
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.primary,
         title: const Text(
           'Collaboration',
-          style: TextStyle(color: Colors.black, fontWeight: FontWeight.w600),
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700),
         ),
-        iconTheme: const IconThemeData(color: Colors.black),
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
@@ -33,7 +34,11 @@ class CollaborationPage extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.blue,
+                gradient: const LinearGradient(
+                  colors: [AppColors.primary, AppColors.alertTitle],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Row(
@@ -60,7 +65,7 @@ class CollaborationPage extends StatelessWidget {
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.white,
-                      foregroundColor: Colors.blue,
+                      foregroundColor: AppColors.alertTitle,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -85,7 +90,7 @@ class CollaborationPage extends StatelessWidget {
                   return const Center(
                     child: Text(
                       "No collaborations yet 🚀",
-                      style: TextStyle(color: Colors.grey),
+                      style: TextStyle(color: AppColors.textSecondary),
                     ),
                   );
                 }
@@ -120,12 +125,14 @@ class CollaborationPage extends StatelessWidget {
                             Container(
                               padding: const EdgeInsets.all(12),
                               decoration: BoxDecoration(
-                                color: Colors.blue.withOpacity(0.1),
+                                color: AppColors.primary.withValues(
+                                  alpha: 0.12,
+                                ),
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: const Icon(
                                 Icons.folder,
-                                color: Colors.blue,
+                                color: AppColors.primary,
                               ),
                             ),
 
@@ -147,7 +154,7 @@ class CollaborationPage extends StatelessWidget {
                                   Text(
                                     collaborator.description,
                                     style: TextStyle(
-                                      color: Colors.grey[600],
+                                      color: AppColors.textSecondary,
                                       fontSize: 13,
                                     ),
                                   ),
@@ -159,7 +166,9 @@ class CollaborationPage extends StatelessWidget {
                               icon: Icon(
                                 Icons.delete,
                                 size: 16,
-                                color: Colors.grey,
+                                color: AppColors.alertTitle.withValues(
+                                  alpha: 0.9,
+                                ),
                               ),
                               onPressed: () {
                                 collaborationController.removeCollaborator(

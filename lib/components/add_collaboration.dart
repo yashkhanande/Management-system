@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:managementt/components/app_colors.dart';
 import 'package:managementt/controller/collaboration_controller.dart';
 import 'package:managementt/controller/task_controller.dart';
 
@@ -17,29 +18,53 @@ class AddCollaboration extends StatelessWidget {
     collaborationController.fetchAllProjects();
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF6F8FA),
+      backgroundColor: AppColors.scaffoldBackground,
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.primary,
         title: const Text(
           'Add Collaboration',
-          style: TextStyle(color: Colors.black),
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700),
         ),
-        iconTheme: const IconThemeData(color: Colors.black),
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Obx(() {
           if (collaborationController.isLoading.value) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(
+              child: CircularProgressIndicator(color: AppColors.primary),
+            );
           }
 
           final projects = collaborationController.projects;
+          final currentProjectId = projectId?.toString() ?? '';
+          final collaboratorIds = collaborationController.collaborators
+              .map((c) => c.id ?? '')
+              .where((id) => id.isNotEmpty)
+              .toSet();
+
+          final filteredProjects = projects.where((p) {
+            final pid = p.id ?? '';
+            if (pid.isEmpty) return false;
+            if (pid == currentProjectId) return false;
+            if (collaboratorIds.contains(pid)) return false;
+            return true;
+          }).toList();
+
+          if (filteredProjects.isEmpty) {
+            return const Center(
+              child: Text(
+                'No available projects to add',
+                style: TextStyle(color: AppColors.textSecondary),
+              ),
+            );
+          }
 
           return ListView.builder(
-            itemCount: projects.length,
+            itemCount: filteredProjects.length,
             itemBuilder: (context, index) {
-              final project = projects[index];
+              final project = filteredProjects[index];
 
               return GestureDetector(
                 onTap: () {
@@ -74,8 +99,10 @@ class AddCollaboration extends StatelessWidget {
                       // Avatar
                       CircleAvatar(
                         radius: 22,
-                        backgroundColor: Colors.blue.withOpacity(0.1),
-                        child: const Icon(Icons.work, color: Colors.blue),
+                        backgroundColor: AppColors.primary.withValues(
+                          alpha: 0.12,
+                        ),
+                        child: const Icon(Icons.work, color: AppColors.primary),
                       ),
 
                       const SizedBox(width: 12),
@@ -96,7 +123,7 @@ class AddCollaboration extends StatelessWidget {
                             Text(
                               "Owner: ${project.ownerId}",
                               style: TextStyle(
-                                color: Colors.grey[600],
+                                color: AppColors.textSecondary,
                                 fontSize: 12,
                               ),
                             ),
@@ -104,7 +131,10 @@ class AddCollaboration extends StatelessWidget {
                         ),
                       ),
 
-                      const Icon(Icons.add_circle_outline, color: Colors.blue),
+                      const Icon(
+                        Icons.add_circle_outline,
+                        color: AppColors.alertTitle,
+                      ),
                     ],
                   ),
                 ),

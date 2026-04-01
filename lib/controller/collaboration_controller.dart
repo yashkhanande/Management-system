@@ -12,12 +12,24 @@ class CollaborationController extends GetxController {
   void addCollaborator(String taskId, String _projectId) async {
     try {
       await TaskService().addCollaborator(taskId, _projectId);
-
+      getCollaboratedProjects(taskId);
       print(
         'CollaborationController: Added collaborator $_projectId to task $taskId',
       );
     } catch (e) {
       print('Error adding collaborator: $e');
+    }
+  }
+
+  void removeCollaborator(String taskId, String projectId) async {
+    try {
+      await TaskService().removeCollaborator(taskId, projectId);
+      getCollaboratedProjects(taskId);
+      print(
+        'CollaborationController: Removed collaborator $projectId from task $taskId',
+      );
+    } catch (e) {
+      print('Error removing collaborator: $e');
     }
   }
 
@@ -47,9 +59,7 @@ class CollaborationController extends GetxController {
     try {
       final results = await TaskService().getCollaboratedProjects(projectId);
       collaborators.value = results;
-      print(
-        'CollaborationController: Fetched ${collaborators.length} collaborators for project $projectId',
-      );
+
       collaborators.refresh();
     } catch (e) {
       // ignore: avoid_print

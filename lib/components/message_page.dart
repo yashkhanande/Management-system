@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:managementt/components/app_colors.dart';
 import 'package:managementt/components/app_textfield.dart';
-import 'package:managementt/controller/profile_controller.dart';
+import 'package:managementt/controller/auth_controller.dart';
 import 'package:managementt/controller/task_controller.dart';
 import 'package:managementt/model/task.dart';
 
@@ -10,7 +10,7 @@ class MessagePage extends StatelessWidget {
   final String projectId = Get.arguments;
   final TextEditingController messageController = TextEditingController();
   final _taskController = Get.find<TaskController>();
-  final _profileController = Get.find<ProfileController>();
+  final _authController = Get.find<AuthController>();
   final ScrollController scrollController = ScrollController();
 
   Future<String> getProjectName() async {
@@ -89,7 +89,7 @@ class MessagePage extends StatelessWidget {
                     final remark = remarks[index];
 
                     final isMe =
-                        remark.senderId == _profileController.member.value!.id;
+                        remark.senderId == _authController.currentUserId.value;
 
                     return Align(
                       alignment: isMe
@@ -173,7 +173,7 @@ class MessagePage extends StatelessWidget {
                         if (messageController.text.trim().isEmpty) return;
 
                         _taskController.addRemark(
-                          _profileController.member.value!.id!,
+                          _authController.currentUserId.value,
                           projectId,
                           messageController.text.trim(),
                         );

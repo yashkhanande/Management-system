@@ -27,6 +27,20 @@ class TaskService {
     }
   }
 
+  Future<void> removeCollaborator(String taskId, String projectId) async {
+    final response = await _api.post(
+      '/tasks/collaboratedProject/remove/$taskId',
+      body: projectId,
+    );
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw Exception(
+        response.body.isNotEmpty
+            ? response.body
+            : 'Failed to remove collaborator',
+      );
+    }
+  }
+
   Future<void> addDependency(String taskId, String dependencyId) async {
     // taskId = "69c6d95c15a8b550f2894b2c";
     // dependencyId = "69c68c63fe54cc2683bb0593";

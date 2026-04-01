@@ -66,11 +66,19 @@ class AuthController extends GetxController {
     accessToken.value = authResponse.accessToken;
     refreshToken.value = authResponse.refreshToken;
     role.value = authResponse.role;
+
     if (loginUsername != null) {
       username.value = loginUsername;
-      currentUserId.value = loginUsername; // Use username as user ID
     }
+
+    currentUserId.value = (authResponse.userId ?? '').trim();
+
     isLoggedIn.value = true;
+
+    print(
+      'AuthController: Storing auth data for userId=${currentUserId.value}, username=${username.value}, role=${role.value}',
+      
+    );
 
     await _storage.write(key: _keyAccessToken, value: authResponse.accessToken);
     await _storage.write(
@@ -80,8 +88,9 @@ class AuthController extends GetxController {
     await _storage.write(key: _keyRole, value: authResponse.role);
     if (loginUsername != null) {
       await _storage.write(key: _keyUsername, value: loginUsername);
-      await _storage.write(key: _keyCurrentUserId, value: loginUsername);
     }
+
+    await _storage.write(key: _keyCurrentUserId, value: currentUserId.value);
 
     _navigateByRole();
   }

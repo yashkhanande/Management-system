@@ -94,7 +94,7 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
   }
 
   List<Task> getFilteredTasks() {
-    final projects = taskController.projects;
+    final projects = taskController.projects.toList(growable: false);
     final searchQuery = taskController.searchQuery.value.trim().toLowerCase();
 
     var allTasks = projects.where((t) {
@@ -630,8 +630,8 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
                           //         );
                           //       }
                           //     : null,
-                          onTap: () {
-                            Get.to(
+                          onTap: () async {
+                            final changed = await Get.to<bool>(
                               () => ProjectDetailPage(
                                 project: task,
                                 projectMemberNames: [
@@ -639,6 +639,9 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
                                 ],
                               ),
                             );
+                            if (changed == true) {
+                              await taskController.getAllTask();
+                            }
                           },
                         ),
                       );

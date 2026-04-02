@@ -23,6 +23,18 @@ class _UserTaskDetailPageState extends State<UserTaskDetailPage> {
   final CollaborationController _collaborationController =
       Get.find<CollaborationController>();
 
+  String _parentProjectName(String? parentId) {
+    if (parentId == null || parentId.trim().isEmpty) return 'No parent project';
+
+    final parent = _taskController.tasks.firstWhereOrNull(
+      (t) =>
+          t.id == parentId &&
+          ((t.type ?? '').toUpperCase() == 'PROJECT' || t.isProject == true),
+    );
+    final title = parent?.title.trim() ?? '';
+    return title.isEmpty ? 'Unknown project' : title;
+  }
+
   String get _normalizedRole =>
       AuthController.to.role.value.trim().toUpperCase();
 
@@ -62,7 +74,10 @@ class _UserTaskDetailPageState extends State<UserTaskDetailPage> {
   void initState() {
     super.initState();
     _loadSubtasks();
-    _collaborationController.getDependencies(widget.task.id!);
+    final taskId = widget.task.id;
+    if (taskId != null && taskId.isNotEmpty) {
+      _collaborationController.getDependencies(taskId);
+    }
   }
 
   void _loadSubtasks() {
@@ -173,6 +188,7 @@ class _UserTaskDetailPageState extends State<UserTaskDetailPage> {
   Widget build(BuildContext context) {
     final topPad = MediaQuery.of(context).padding.top;
     final task = widget.task;
+    final parentProjectName = _parentProjectName(task.parentId);
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
@@ -228,35 +244,67 @@ class _UserTaskDetailPageState extends State<UserTaskDetailPage> {
                       Expanded(
                         child: Row(
                           children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  task.title,
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 24,
-                                    height: 1.02,
-                                    fontWeight: FontWeight.w700,
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    task.title,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 24,
+                                      height: 1.02,
+                                      fontWeight: FontWeight.w700,
+                                    ),
                                   ),
-                                ),
 
-                                const SizedBox(height: 2),
-                                Text(
-                                  task.description,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                    color: Colors.white.withValues(alpha: 0.85),
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w500,
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    task.description,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      color: Colors.white.withValues(
+                                        alpha: 0.85,
+                                      ),
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w500,
+                                    ),
                                   ),
-                                ),
-                              ],
+                                  const SizedBox(height: 4),
+                                  Row(
+                                    children: [
+                                      Icon(
+                                        Icons.folder_open_rounded,
+                                        size: 14,
+                                        color: Colors.white.withValues(
+                                          alpha: 0.85,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 6),
+                                      Expanded(
+                                        child: Text(
+                                          parentProjectName,
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: TextStyle(
+                                            color: Colors.white.withValues(
+                                              alpha: 0.92,
+                                            ),
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
                             ),
-                            Spacer(),
+                            const SizedBox(width: 8),
                             InkWell(
                               onTap: () {
                                 final taskId = task.id;
@@ -408,6 +456,11 @@ class _UserTaskDetailPageState extends State<UserTaskDetailPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        _InfoRow(
+                          label: 'Parent Project',
+                          value: parentProjectName,
+                        ),
+                        const SizedBox(height: 12),
                         _InfoRow(label: 'Description', value: task.description),
                         const SizedBox(height: 12),
                         _InfoRow(
@@ -429,7 +482,8 @@ class _UserTaskDetailPageState extends State<UserTaskDetailPage> {
                   ),
                   const SizedBox(height: 20),
                   Obx(() {
-                    final dependencies = _collaborationController.dependencies;
+                    final dependencies = _collaborationController.dependencies
+                        .toList();
 
                     if (dependencies.isEmpty) {
                       return const SizedBox.shrink();

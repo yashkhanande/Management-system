@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:managementt/components/app_colors.dart';
 import 'package:managementt/components/app_render_entrance.dart';
 import 'package:managementt/controller/profile_controller.dart';
+import 'package:managementt/controller/task_controller.dart';
 import 'package:managementt/controller/user_task_controller.dart';
 import 'package:managementt/controller/category_controller.dart';
 import 'package:managementt/controller/user_dashboard_controller.dart';
@@ -38,7 +39,21 @@ class _UserTaskDashboardState extends State<UserTaskDashboard> {
   final selectedPriority = 'ALL'.obs;
   final selectedCategory = 'ALL'.obs;
   final UserTaskController taskController = Get.find<UserTaskController>();
+  final TaskController allTaskController = Get.find<TaskController>();
   final CategoryController categoryController = Get.find<CategoryController>();
+
+  String _parentProjectName(String? parentId) {
+    if (parentId == null || parentId.trim().isEmpty) return 'No parent project';
+
+    final parent = allTaskController.tasks.firstWhereOrNull(
+      (t) =>
+          t.id == parentId &&
+          ((t.type ?? '').toUpperCase() == 'PROJECT' || t.isProject == true),
+    );
+
+    final title = parent?.title.trim() ?? '';
+    return title.isEmpty ? 'Unknown project' : title;
+  }
 
   @override
   void initState() {
@@ -296,6 +311,9 @@ class _UserTaskDashboardState extends State<UserTaskDashboard> {
                       padding: EdgeInsets.zero,
                       itemBuilder: (context, index) {
                         final task = filtered[index];
+                        final parentProjectName = _parentProjectName(
+                          task.parentId,
+                        );
                         final isDone = AppColors.isCompletedStatus(task.status);
                         final strip = AppColors.stripColor(
                           priority: task.priority,
@@ -423,6 +441,30 @@ class _UserTaskDashboardState extends State<UserTaskDashboard> {
                                             fontSize: 13,
                                             height: 1.3,
                                           ),
+                                        ),
+
+                                        const SizedBox(height: 6),
+                                        Row(
+                                          children: [
+                                            const Icon(
+                                              Icons.folder_open_rounded,
+                                              size: 14,
+                                              color: Color(0xFF64748B),
+                                            ),
+                                            const SizedBox(width: 6),
+                                            Expanded(
+                                              child: Text(
+                                                parentProjectName,
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: const TextStyle(
+                                                  color: Color(0xFF475569),
+                                                  fontSize: 12,
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
                                         ),
 
                                         const SizedBox(height: 12),

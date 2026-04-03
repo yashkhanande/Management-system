@@ -277,7 +277,7 @@ class EmployeeDashboard extends StatelessWidget {
 
                               if (!confirmed) return;
                               if (member.id != null) {
-                                memberController.removeMember(member.id!);
+                                await memberController.removeMember(member.id!);
                               }
                             },
                           ),

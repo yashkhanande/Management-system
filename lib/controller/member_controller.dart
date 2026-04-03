@@ -47,6 +47,22 @@ class MemberController extends GetxController {
   }
 
   Future<void> addMember(Member member) async {
+    final normalizedEmail = member.email?.trim().toLowerCase() ?? '';
+    final duplicateEmail =
+        normalizedEmail.isNotEmpty &&
+        members.any(
+          (m) => (m.email ?? '').trim().toLowerCase() == normalizedEmail,
+        );
+
+    if (duplicateEmail) {
+      Get.snackbar('Error', 'An employee with this email already exists');
+      return;
+    }
+
+    if (normalizedEmail.isNotEmpty) {
+      member.email = normalizedEmail;
+    }
+
     isLoading.value = true;
     try {
       await _authService.register(

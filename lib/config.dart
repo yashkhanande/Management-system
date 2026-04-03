@@ -9,7 +9,7 @@ class Config {
       return _apiBaseUrl;
     }
 
-    return 'http://10.0.2.2:8080';
-    // return 'https://management-app-backend-kyhx.onrender.com';
+    // return 'http://10.0.2.2:8080';
+    return 'https://management-app-backend-kyhx.onrender.com';
   }
 }

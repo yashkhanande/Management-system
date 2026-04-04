@@ -115,6 +115,7 @@ class TaskService {
       throw Exception('Failed to fetch collaborators ' + response.body);
     }
   }
+
   Future<List<Task>> getDependencies(String id) async {
     final response = await _api.get('/tasks/dependency/$id');
     if (response.statusCode == 200) {
@@ -220,7 +221,11 @@ class TaskService {
   Future<void> addRemark(String senderId, String taskId, String message) async {
     final response = await _api.post(
       '/tasks/remark/add/$taskId',
-      body: {'senderId': senderId, 'message': message},
+      body: {
+        'senderId': senderId,
+        'message': message,
+        'time': DateTime.now().toIso8601String(),
+      },
     );
     print(senderId);
     print(taskId);
@@ -245,7 +250,7 @@ class TaskService {
     }
   }
 
-  Future <bool> checkForSubmit(String taskId) async {
+  Future<bool> checkForSubmit(String taskId) async {
     final response = await _api.get('/tasks/checkForSubmit/$taskId');
     if (response.statusCode == 200) {
       return response.body == 'true';

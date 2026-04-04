@@ -24,12 +24,15 @@ class Remark {
   }
 
   factory Remark.fromJson(Map<String, dynamic> json) {
+    final dynamic rawTimestamp =
+        json['time'] ?? json['timestamp'] ?? json['createdAt'];
+
     return Remark(
-      id: json['id'],
-      senderName: json['senderName'],
-      senderId: json['senderId'],
-      message: json['message'],
-      timestamp: json['time'],
+      id: (json['id'] ?? '').toString(),
+      senderName: json['senderName']?.toString(),
+      senderId: (json['senderId'] ?? '').toString(),
+      message: (json['message'] ?? '').toString(),
+      timestamp: rawTimestamp?.toString() ?? '',
     );
   }
 }

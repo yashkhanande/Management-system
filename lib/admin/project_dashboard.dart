@@ -68,7 +68,6 @@ class _ProjectDashboardState extends State<ProjectDashboard> {
   List<String> get _projectCategoryOptions =>
       categoryController.dropdownOptions;
 
-
   List<Task> getFilteredTasks() {
     final projects = taskController.projects.toList(growable: false);
     final searchQuery = taskController.searchQuery.value.trim().toLowerCase();

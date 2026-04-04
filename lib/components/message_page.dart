@@ -54,6 +54,19 @@ class _MessagePageState extends State<MessagePage> {
     return "${date.day}/${date.month}/${date.year}";
   }
 
+  DateTime _parseRemarkTimestamp(String raw) {
+    if (raw.trim().isEmpty) return DateTime.now();
+    return DateTime.tryParse(raw) ?? DateTime.now();
+  }
+
+  String _formatMessageTime(DateTime date) {
+    final hour24 = date.hour;
+    final minute = date.minute.toString().padLeft(2, '0');
+    final suffix = hour24 >= 12 ? 'PM' : 'AM';
+    final hour12 = hour24 % 12 == 0 ? 12 : hour24 % 12;
+    return '$hour12:$minute $suffix';
+  }
+
   Future<void> _initialLoad() async {
     await _fetchRemarksAndHandleNewMessage(isInitialLoad: true);
   }
@@ -174,8 +187,7 @@ class _MessagePageState extends State<MessagePage> {
                   itemCount: remarks.length,
                   itemBuilder: (context, index) {
                     final remark = remarks[index];
-
-                    final date = DateTime.parse(remark.timestamp);
+                    final date = _parseRemarkTimestamp(remark.timestamp);
 
                     final isMe =
                         remark.senderId == _authController.currentUserId.value;
@@ -185,7 +197,7 @@ class _MessagePageState extends State<MessagePage> {
                     if (index == 0) {
                       showDateHeader = true;
                     } else {
-                      final prevDate = DateTime.parse(
+                      final prevDate = _parseRemarkTimestamp(
                         remarks[index - 1].timestamp,
                       );
 
@@ -267,12 +279,27 @@ class _MessagePageState extends State<MessagePage> {
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 8,
                                 ),
-                                child: Text(
-                                  remark.senderName ?? "Unknown",
-                                  style: const TextStyle(
-                                    fontSize: 10,
-                                    color: Colors.grey,
-                                  ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      isMe
+                                          ? 'You'
+                                          : (remark.senderName ?? 'Unknown'),
+                                      style: const TextStyle(
+                                        fontSize: 10,
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 6),
+                                    Text(
+                                      _formatMessageTime(date),
+                                      style: const TextStyle(
+                                        fontSize: 10,
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ],

@@ -13,7 +13,7 @@ class ManageDependency extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    _collaborationController.getAllTasksByCollaboration(projectId);
+    _collaborationController.getAllTasksByCollaboration2(projectId, taskId);
     _collaborationController.getDependencies(taskId);
     return Scaffold(
       body: SafeArea(

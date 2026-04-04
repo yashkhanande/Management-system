@@ -108,6 +108,45 @@ class CollaborationController extends GetxController {
     }
   }
 
+  Future<void> getAllTasksByCollaboration2(
+    String projectId,
+    String taskId,
+  ) async {
+    try {
+      loadingTasks.value = true;
+
+      final results = await TaskService().getAllTasksByCollaboration(projectId);
+
+      // Create a new map to avoid mutating original reference
+      final updatedResults = results.map((key, taskList) {
+        final filteredList = taskList
+            .where((task) => task.id != taskId)
+            .toList();
+
+        return MapEntry(key, filteredList);
+      });
+
+      tasksOfCollaboration.value = updatedResults;
+
+      // Calculate total tasks correctly
+      int totalTasks = updatedResults.values.fold(
+        0,
+        (sum, list) => sum + list.length,
+      );
+
+      print(
+        'CollaborationController: Fetched $totalTasks tasks across ${updatedResults.length} projects for collaboration $projectId',
+      );
+    } catch (e) {
+      print('CollaborationController: Failed to fetch tasks — $e');
+
+      // Assign empty map safely
+      tasksOfCollaboration.value = {};
+    } finally {
+      loadingTasks.value = false;
+    }
+  }
+
   void addDependency(String taskId, String dependencyId) async {
     try {
       await TaskService().addDependency(taskId, dependencyId);

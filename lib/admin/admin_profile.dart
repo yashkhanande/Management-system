@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:managementt/components/app_snackbar.dart';
 import 'package:managementt/components/app_confirm_dialog.dart';
 import 'package:managementt/components/app_render_entrance.dart';
 import 'package:managementt/controller/auth_controller.dart';
@@ -382,7 +383,7 @@ class _AdminProfilePageState extends State<AdminProfilePage> {
                     child: GestureDetector(
                       onTap: () async {
                         if (nameController.text.trim().isEmpty) {
-                          Get.snackbar(
+                          AppSnackbar.show(
                             'Error',
                             'Name is required',
                             backgroundColor: Colors.red.shade100,
@@ -396,14 +397,14 @@ class _AdminProfilePageState extends State<AdminProfilePage> {
                         );
                         if (success) {
                           isEditing.value = false;
-                          Get.snackbar(
+                          AppSnackbar.show(
                             'Success',
                             'Profile updated',
                             backgroundColor: Colors.green.shade100,
                             colorText: Colors.green.shade800,
                           );
                         } else {
-                          Get.snackbar(
+                          AppSnackbar.show(
                             'Error',
                             'Failed to update profile',
                             backgroundColor: Colors.red.shade100,
@@ -625,7 +626,7 @@ class _AdminProfilePageState extends State<AdminProfilePage> {
                                 if (old.isEmpty ||
                                     newPwd.isEmpty ||
                                     confirm.isEmpty) {
-                                  Get.snackbar(
+                                  AppSnackbar.show(
                                     'Error',
                                     'All fields are required',
                                     backgroundColor: Colors.red.shade100,
@@ -635,7 +636,7 @@ class _AdminProfilePageState extends State<AdminProfilePage> {
                                 }
 
                                 if (newPwd.length < 6) {
-                                  Get.snackbar(
+                                  AppSnackbar.show(
                                     'Error',
                                     'New password must be at least 6 characters',
                                     backgroundColor: Colors.red.shade100,
@@ -645,7 +646,7 @@ class _AdminProfilePageState extends State<AdminProfilePage> {
                                 }
 
                                 if (newPwd != confirm) {
-                                  Get.snackbar(
+                                  AppSnackbar.show(
                                     'Error',
                                     'Passwords do not match',
                                     backgroundColor: Colors.red.shade100,
@@ -665,14 +666,14 @@ class _AdminProfilePageState extends State<AdminProfilePage> {
                                   newPasswordController.clear();
                                   confirmPasswordController.clear();
                                   showPasswordSection.value = false;
-                                  Get.snackbar(
+                                  AppSnackbar.show(
                                     'Success',
                                     'Password changed successfully',
                                     backgroundColor: Colors.green.shade100,
                                     colorText: Colors.green.shade800,
                                   );
                                 } else {
-                                  Get.snackbar(
+                                  AppSnackbar.show(
                                     'Error',
                                     error,
                                     backgroundColor: Colors.red.shade100,

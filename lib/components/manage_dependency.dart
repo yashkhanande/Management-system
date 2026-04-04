@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:managementt/components/app_snackbar.dart';
 import 'package:managementt/controller/collaboration_controller.dart';
 
 class ManageDependency extends StatelessWidget {
@@ -137,7 +138,7 @@ class ManageDependency extends StatelessWidget {
 
                                     Get.back();
 
-                                    Get.snackbar(
+                                    AppSnackbar.show(
                                       "Success",
                                       "Dependency added",
                                       backgroundColor: Colors.black,

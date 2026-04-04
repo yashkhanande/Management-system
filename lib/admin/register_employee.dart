@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:managementt/components/app_snackbar.dart';
 import 'package:managementt/components/app_colors.dart';
 import 'package:managementt/controller/member_controller.dart';
 import 'package:managementt/model/member.dart';
@@ -635,7 +636,7 @@ class _RegisterEmployeesState extends State<RegisterEmployees>
     if (nameController.text.isEmpty ||
         emailController.text.isEmpty ||
         passwordController.text.isEmpty) {
-      Get.snackbar(
+      AppSnackbar.show(
         "Error",
         "Please fill all fields",
         backgroundColor: Colors.redAccent,
@@ -647,7 +648,7 @@ class _RegisterEmployeesState extends State<RegisterEmployees>
       return;
     }
     if (roleController.value.isEmpty) {
-      Get.snackbar(
+      AppSnackbar.show(
         "Error",
         "Please select a role",
         backgroundColor: Colors.redAccent,

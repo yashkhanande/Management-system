@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:managementt/components/app_snackbar.dart';
 import 'package:managementt/components/app_button.dart';
 import 'package:managementt/components/app_colors.dart';
 import 'package:managementt/controller/auth_controller.dart';
@@ -128,7 +129,7 @@ class _LoginPageState extends State<LoginPage> {
                                       .trim();
 
                                   if (email.isEmpty || password.isEmpty) {
-                                    Get.snackbar(
+                                    AppSnackbar.show(
                                       'Error',
                                       'Please enter both Email and Password',
                                       snackPosition: SnackPosition.BOTTOM,
@@ -145,7 +146,7 @@ class _LoginPageState extends State<LoginPage> {
                                       loginUsername: email,
                                     );
                                   } catch (e) {
-                                    Get.snackbar(
+                                    AppSnackbar.show(
                                       'Login Failed',
                                       e.toString(),
                                       snackPosition: SnackPosition.BOTTOM,

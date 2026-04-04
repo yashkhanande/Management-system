@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:managementt/components/app_snackbar.dart';
 import 'package:managementt/controller/auth_controller.dart';
 import 'package:managementt/controller/dashboard_controller.dart';
 import 'package:managementt/controller/profile_controller.dart';
@@ -74,10 +75,9 @@ class MemberController extends GetxController {
       await getMembers();
       _refreshRelated();
       Get.back();
-      Get.snackbar('Success', 'Employee added successfully');
+      AppSnackbar.show('Success', 'Employee added successfully');
     } catch (e) {
-      final message = e.toString().replaceFirst('Exception: ', '');
-      Get.snackbar('Error', message);
+      AppSnackbar.show('Error', 'Failed to add member: $e');
     } finally {
       isLoading.value = false;
     }
@@ -103,7 +103,7 @@ class MemberController extends GetxController {
       await getMembers();
       _refreshRelated();
     } catch (e) {
-      Get.snackbar('Error', 'Failed to remove member: $e');
+      AppSnackbar.show('Error', 'Failed to remove member: $e');
     }
   }
 
@@ -114,7 +114,7 @@ class MemberController extends GetxController {
     } catch (e) {
       owner.value = null;
       Future.microtask(() {
-        Get.snackbar("Error", e.toString());
+        AppSnackbar.show("Error", e.toString());
       });
     } finally {
       isLoading.value = false;

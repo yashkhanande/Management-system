@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:managementt/components/app_colors.dart';
 import 'package:managementt/controller/collaboration_controller.dart';
+import 'package:managementt/controller/dashboard_controller.dart';
 import 'package:managementt/controller/task_controller.dart';
 
 class AddCollaboration extends StatelessWidget {
@@ -10,6 +11,7 @@ class AddCollaboration extends StatelessWidget {
   final TaskController taskController = Get.find<TaskController>();
   final CollaborationController collaborationController =
       Get.find<CollaborationController>();
+  final DashboardController dashboardController = Get.find<DashboardController>();
 
   final projectId = Get.arguments;
 
@@ -65,6 +67,7 @@ class AddCollaboration extends StatelessWidget {
             itemCount: filteredProjects.length,
             itemBuilder: (context, index) {
               final project = filteredProjects[index];
+              final ownerName = dashboardController.getMemberName(project.ownerId);
 
               return GestureDetector(
                 onTap: () {
@@ -121,7 +124,7 @@ class AddCollaboration extends StatelessWidget {
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              "Owner: ${project.ownerId}",
+                              "Owner: $ownerName",
                               style: TextStyle(
                                 color: AppColors.textSecondary,
                                 fontSize: 12,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:managementt/components/app_snackbar.dart';
 import 'package:managementt/components/app_confirm_dialog.dart';
 import 'package:managementt/components/app_colors.dart';
 import 'package:managementt/controller/category_controller.dart';
@@ -111,7 +112,7 @@ class _ManageCategoriesPageState extends State<ManageCategoriesPage> {
                   : await _categoryController.addCategory(value);
               if (!ok) {
                 final details = _categoryController.lastError.value.trim();
-                Get.snackbar(
+                AppSnackbar.show(
                   'Category not saved',
                   details.isEmpty
                       ? 'It may be empty or already exists.'
@@ -139,7 +140,7 @@ class _ManageCategoriesPageState extends State<ManageCategoriesPage> {
     );
 
     if (result == true) {
-      Get.snackbar(
+      AppSnackbar.show(
         'Success',
         isEdit ? 'Category updated.' : 'Category added.',
         backgroundColor: AppColors.success,
@@ -156,7 +157,7 @@ class _ManageCategoriesPageState extends State<ManageCategoriesPage> {
     }).length;
 
     if (inUseCount > 0) {
-      Get.snackbar(
+      AppSnackbar.show(
         'Delete blocked',
         'This category is used by $inUseCount project(s). Reassign those projects first.',
         backgroundColor: AppColors.warning,
@@ -175,7 +176,7 @@ class _ManageCategoriesPageState extends State<ManageCategoriesPage> {
 
     final ok = await _categoryController.deleteCategory(value);
     if (!ok) {
-      Get.snackbar(
+      AppSnackbar.show(
         'Delete failed',
         'Could not remove category. Please try again.',
         backgroundColor: AppColors.error,
@@ -184,7 +185,7 @@ class _ManageCategoriesPageState extends State<ManageCategoriesPage> {
       return;
     }
 
-    Get.snackbar(
+    AppSnackbar.show(
       'Deleted',
       'Category removed successfully.',
       backgroundColor: AppColors.success,

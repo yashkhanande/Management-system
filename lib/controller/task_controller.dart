@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:managementt/components/app_snackbar.dart';
 import 'package:managementt/controller/auth_controller.dart';
 import 'package:managementt/controller/dashboard_controller.dart';
 import 'package:managementt/controller/profile_controller.dart';
@@ -81,7 +82,7 @@ class TaskController extends GetxController {
       _refreshRelated();
       return true;
     } catch (e) {
-      Get.snackbar('Error', 'Failed to add task: $e');
+      AppSnackbar.show('Error', 'Failed to add task: $e');
       return false;
     } finally {
       isLoading.value = false;
@@ -120,7 +121,7 @@ class TaskController extends GetxController {
       _refreshRelated();
       return true;
     } catch (e) {
-      Get.snackbar('Error', 'Failed to update task: $e');
+      AppSnackbar.show('Error', 'Failed to update task: $e');
       return false;
     } finally {
       isLoading.value = false;
@@ -135,7 +136,7 @@ class TaskController extends GetxController {
       _refreshRelated();
       return true;
     } catch (e) {
-      Get.snackbar('Error', 'Failed to update task: $e');
+      AppSnackbar.show('Error', 'Failed to update task: $e');
       return false;
     } finally {
       isLoading.value = false;
@@ -170,7 +171,7 @@ class TaskController extends GetxController {
       await getAllTask();
       _refreshRelated();
     } catch (e) {
-      Get.snackbar('Error', 'Failed to remove task: $e');
+      AppSnackbar.show('Error', 'Failed to remove task: $e');
     }
   }
 
@@ -191,7 +192,7 @@ class TaskController extends GetxController {
       _refreshRelated();
       return true;
     } catch (e) {
-      Get.snackbar('Error', 'Failed to submit for review: $e');
+      AppSnackbar.show('Error', 'Failed to submit for review: $e');
       return false;
     } finally {
       isLoading.value = false;
@@ -215,7 +216,7 @@ class TaskController extends GetxController {
       _refreshRelated();
       return true;
     } catch (e) {
-      Get.snackbar('Error', 'Failed to approve completion: $e');
+      AppSnackbar.show('Error', 'Failed to approve completion: $e');
       return false;
     } finally {
       isLoading.value = false;
@@ -269,7 +270,7 @@ class TaskController extends GetxController {
         _refreshRelated();
         return true;
       } catch (fallbackError) {
-        Get.snackbar('Error', 'Failed to disapprove review: $fallbackError');
+        AppSnackbar.show('Error', 'Failed to disapprove review: $fallbackError');
         return false;
       }
     } finally {
@@ -284,7 +285,7 @@ class TaskController extends GetxController {
       await fetchRemarks(taskId);
       return true;
     } catch (e) {
-      Get.snackbar('Error', 'Failed to add remark: $e');
+      AppSnackbar.show('Error', 'Failed to add remark: $e');
       return false;
     } finally {
       isLoading.value = false;

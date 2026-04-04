@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:managementt/components/app_snackbar.dart';
 import 'package:managementt/admin/add_task.dart';
 import 'package:managementt/components/app_colors.dart';
 import 'package:managementt/components/message_page.dart';
@@ -98,7 +99,7 @@ class _UserTaskDetailPageState extends State<UserTaskDetailPage> {
   Future<void> _convertTaskToProjectAndAddSubtasks() async {
     final taskId = widget.task.id;
     if (taskId == null || taskId.isEmpty) {
-      Get.snackbar(
+      AppSnackbar.show(
         'Error',
         'Task id is missing. Please refresh and try again.',
         backgroundColor: AppColors.error,
@@ -146,7 +147,7 @@ class _UserTaskDetailPageState extends State<UserTaskDetailPage> {
   Future<void> _submitForReview() async {
     final taskId = widget.task.id;
     if (taskId == null || taskId.isEmpty) {
-      Get.snackbar(
+      AppSnackbar.show(
         'Error',
         'Task id is missing. Please refresh and try again.',
         backgroundColor: AppColors.error,
@@ -156,7 +157,7 @@ class _UserTaskDetailPageState extends State<UserTaskDetailPage> {
     }
     final canSubmit = await _taskController.checkForSubmit(taskId);
     if (!canSubmit) {
-      Get.snackbar(
+      AppSnackbar.show(
         'Error',
         'Failed to submit for review: some dependencies are not met.',
         backgroundColor: AppColors.error,
@@ -175,7 +176,7 @@ class _UserTaskDetailPageState extends State<UserTaskDetailPage> {
       setState(() {
         widget.task.status = 'REVIEW';
       });
-      Get.snackbar(
+      AppSnackbar.show(
         'Submitted',
         'Task submitted for project-owner review.',
         backgroundColor: AppColors.success,
@@ -309,7 +310,7 @@ class _UserTaskDetailPageState extends State<UserTaskDetailPage> {
                               onTap: () {
                                 final taskId = task.id;
                                 if (taskId == null || taskId.isEmpty) {
-                                  Get.snackbar(
+                                  AppSnackbar.show(
                                     'Error',
                                     'Task id is missing. Please refresh and try again.',
                                     backgroundColor: AppColors.error,

@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:managementt/components/app_snackbar.dart';
 import 'package:managementt/components/app_colors.dart';
 import 'package:managementt/controller/category_controller.dart';
 import 'package:managementt/controller/collaboration_controller.dart';
@@ -1337,7 +1338,7 @@ class _AddTaskState extends State<AddTask> with TickerProviderStateMixin {
         descriptionController.text.isEmpty ||
         selectedMemberId.value.isEmpty ||
         normalizedPriority.isEmpty) {
-      Get.snackbar(
+      AppSnackbar.show(
         "Error",
         "Please fill title, description, assignee, and priority",
         backgroundColor: Colors.black,
@@ -1353,7 +1354,7 @@ class _AddTaskState extends State<AddTask> with TickerProviderStateMixin {
       if (contributionText.isNotEmpty) {
         final parsedContribution = int.tryParse(contributionText);
         if (parsedContribution == null || parsedContribution < 0) {
-          Get.snackbar(
+          AppSnackbar.show(
             "Error",
             "Enter a valid contribution percentage",
             backgroundColor: Colors.black,
@@ -1368,7 +1369,7 @@ class _AddTaskState extends State<AddTask> with TickerProviderStateMixin {
       }
 
       if (contributionValue > _remainingContribution) {
-        Get.snackbar(
+        AppSnackbar.show(
           "Error",
           "Only $_remainingContribution% contribution is remaining for this project",
           backgroundColor: Colors.black,

@@ -43,7 +43,9 @@ class TaskPaginationController extends PaginationController<Task> {
         final status = (task.status ?? '').toUpperCase();
         switch (statusFilter.value) {
           case TaskStatusFilter.todo:
-            return status == 'NOT_STARTED' || status == 'TODO';
+            return status == 'IN_PROGRESS' ||
+                status == 'NOT_STARTED' ||
+                status == 'TODO';
           case TaskStatusFilter.inProgress:
             return status == 'IN_PROGRESS';
           case TaskStatusFilter.underReview:

@@ -34,8 +34,8 @@ class _UserAssignmentsPageState extends State<UserAssignmentsPage> {
 
   static const List<_StatusFilterOption> _statusFilters = [
     _StatusFilterOption('ALL', 'All'),
-    _StatusFilterOption('TODO', 'Todo'),
-    _StatusFilterOption('IN_PROGRESS', 'In Progress'),
+    _StatusFilterOption('NOT_STARTED', 'Not started'),
+    _StatusFilterOption('IN_PROGRESS', 'In progress'),
     _StatusFilterOption('REVIEW', 'Review'),
     _StatusFilterOption('DONE', 'Done'),
     _StatusFilterOption('OVERDUE', 'Overdue'),
@@ -107,7 +107,7 @@ class _UserAssignmentsPageState extends State<UserAssignmentsPage> {
       filtered = filtered.where((task) {
         final status = (task.status ?? '').toUpperCase();
         switch (_statusFilter) {
-          case 'TODO':
+          case 'NOT_STARTED':
             return status == 'TODO' || status == 'NOT_STARTED';
           case 'IN_PROGRESS':
             return status == 'IN_PROGRESS';
@@ -481,14 +481,14 @@ class _AssignmentTile extends StatelessWidget {
     final status = (value ?? '').toUpperCase();
     switch (status) {
       case 'IN_PROGRESS':
-        return 'In Progress';
+        return 'In progress';
       case 'REVIEW':
         return 'Review';
       case 'OVERDUE':
         return 'Overdue';
       case 'NOT_STARTED':
       case 'TODO':
-        return 'Todo';
+        return 'Not started';
       case 'DONE':
       case 'COMPLETED':
         return 'Done';

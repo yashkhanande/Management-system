@@ -1414,7 +1414,9 @@ class _AddTaskState extends State<AddTask> with TickerProviderStateMixin {
       description: descriptionController.text,
       priority: normalizedPriority,
       type: widget.taskToEdit?.type ?? widget.defaultType,
-      status: widget.taskToEdit?.status ?? 'NOT_STARTED',
+      status:
+          widget.taskToEdit?.status ??
+          (_isTaskType ? 'IN_PROGRESS' : 'NOT_STARTED'),
       category: selectedCategory.value == _noneCategoryValue
           ? null
           : selectedCategory.value.isEmpty

@@ -44,10 +44,10 @@ class _UserProjectDashboardState extends State<UserProjectDashboard> {
 
   static const Map<String, String> _projectProgressOptions = {
     'ALL': 'ALL',
-    'IN_PROGRESS': 'IN PROGRESS',
-    'COMPLETED': 'COMPLETED',
-    'NOT_STARTED': 'NOT STARTED',
-    'OVERDUE': 'OVERDUE',
+    'IN_PROGRESS': 'In progress',
+    'DONE': 'Done',
+    'NOT_STARTED': 'Not started',
+    'OVERDUE': 'Overdue',
   };
 
   static const List<String> _projectPriorityOptions = [
@@ -154,10 +154,10 @@ class _UserProjectDashboardState extends State<UserProjectDashboard> {
     final s = (status ?? '').trim().toUpperCase();
     switch (s) {
       case 'IN_PROGRESS':
-        return 'In Progress';
+        return 'In progress';
       case 'NOT_STARTED':
       case 'TODO':
-        return 'Todo';
+        return 'Not started';
       case 'OVERDUE':
         return 'Overdue';
       case 'DONE':
@@ -202,7 +202,7 @@ class _UserProjectDashboardState extends State<UserProjectDashboard> {
         switch (selectedProgress.value) {
           case 'IN_PROGRESS':
             return status == 'IN_PROGRESS';
-          case 'COMPLETED':
+          case 'DONE':
             return status == 'DONE' || status == 'COMPLETED';
           case 'NOT_STARTED':
             return status == 'NOT_STARTED' || status == 'TODO';

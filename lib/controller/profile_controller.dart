@@ -58,7 +58,12 @@ class ProfileController extends GetxController {
   int get totalTasks => allOwnerItems.length;
 
   int get activeTasks => allOwnerItems
-      .where((t) => t.status == 'TODO' || t.status == 'NOT_STARTED')
+      .where(
+        (t) =>
+            t.status == 'TODO' ||
+            t.status == 'NOT_STARTED' ||
+            t.status == 'IN_PROGRESS',
+      )
       .length;
 
   int get doneTasks => allOwnerItems.where((t) => t.status == 'DONE').length;

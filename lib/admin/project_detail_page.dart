@@ -330,8 +330,10 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
     return all.where((t) {
       final status = (t.status ?? '').toUpperCase();
       switch (f) {
-        case 'TODO':
-          return status == 'TODO' || status == 'NOT_STARTED';
+        case 'NOT_STARTED':
+          return status == 'IN_PROGRESS' ||
+              status == 'TODO' ||
+              status == 'NOT_STARTED';
         case 'IN_PROGRESS':
           return status == 'IN_PROGRESS';
         case 'REVIEW':
@@ -358,10 +360,11 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
     switch (filter) {
       case 'ALL':
         return all.length;
-      case 'TODO':
+      case 'NOT_STARTED':
         return all
             .where(
               (t) =>
+                  (t.status ?? '').toUpperCase() == 'IN_PROGRESS' ||
                   (t.status ?? '').toUpperCase() == 'TODO' ||
                   (t.status ?? '').toUpperCase() == 'NOT_STARTED',
             )
@@ -571,7 +574,7 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
           final tasks = _projectTasks;
           final members = _projectMembers(tasks);
           final doneCount = _countFor('DONE');
-          final todoCount = _countFor('TODO');
+          final notStartedCount = _countFor('NOT_STARTED');
           final inProgressCount = _countFor('IN_PROGRESS');
           final overdueCount = tasks
               .where((t) => (t.status ?? '').toUpperCase() == 'OVERDUE')
@@ -1097,14 +1100,14 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
                         ),
                         const SizedBox(width: 8),
                         _FilterChip(
-                          label: 'Todo',
-                          count: todoCount,
-                          selected: _selectedFilter.value == 'TODO',
-                          onTap: () => _selectedFilter.value = 'TODO',
+                          label: 'Not started',
+                          count: notStartedCount,
+                          selected: _selectedFilter.value == 'NOT_STARTED',
+                          onTap: () => _selectedFilter.value = 'NOT_STARTED',
                         ),
                         const SizedBox(width: 8),
                         _FilterChip(
-                          label: 'In Progress',
+                          label: 'In progress',
                           count: inProgressCount,
                           selected: _selectedFilter.value == 'IN_PROGRESS',
                           onTap: () => _selectedFilter.value = 'IN_PROGRESS',
@@ -1652,10 +1655,10 @@ class _TaskCard extends StatelessWidget {
     final s = (status ?? '').toUpperCase();
     switch (s) {
       case 'IN_PROGRESS':
-        return 'In Progress';
+        return 'In progress';
       case 'NOT_STARTED':
       case 'TODO':
-        return 'Todo';
+        return 'Not started';
       case 'REVIEW':
         return 'Review';
       case 'OVERDUE':

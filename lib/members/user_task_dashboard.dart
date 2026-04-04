@@ -242,8 +242,10 @@ class _UserTaskDashboardState extends State<UserTaskDashboard> {
                             return status == 'IN_PROGRESS';
                           case 'DONE':
                             return status == 'DONE' || status == 'COMPLETED';
-                          case 'TODO':
-                            return status == 'NOT_STARTED' || status == 'TODO';
+                          case 'NOT_STARTED':
+                            return status == 'IN_PROGRESS' ||
+                                status == 'NOT_STARTED' ||
+                                status == 'TODO';
                           case 'REVIEW':
                             return status == 'REVIEW';
                           case 'OVERDUE':
@@ -326,28 +328,24 @@ class _UserTaskDashboardState extends State<UserTaskDashboard> {
                             // ✅ CLEAN SOFT BACKGROUND COLORS
                             color: task.status == 'DONE'
                                 ? const Color(0xFFE8F5E9) // soft green
-                                : task.status == 'NOT_STARTED'
-                                ? const Color(0xFFFFF8E1) // soft yellow
+                                : task.status == 'IN_PROGRESS'
+                                ? const Color(0xFFE3F2FD) // soft blue
                                 : task.priority == 'Critical'
                                 ? const Color(0xFFFFEBEE) // soft red (priority)
                                 : task.status == 'OVERDUE'
                                 ? const Color(0xFFFFEBEE) // same red family
-                                : task.status == 'IN_PROGRESS'
-                                ? const Color(0xFFE3F2FD) // soft blue
                                 : Colors.white,
 
                             borderRadius: BorderRadius.circular(16),
                             border: Border.all(
                               color: task.status == 'DONE'
                                   ? const Color(0xFF81C784) // green
-                                  : task.status == 'NOT_STARTED'
-                                  ? const Color(0xFFFFD54F) // yellow
+                                  : task.status == 'IN_PROGRESS'
+                                  ? const Color(0xFF64B5F6) // blue
                                   : task.priority == 'Critical'
                                   ? const Color(0xFFE57373) // red (priority)
                                   : task.status == 'OVERDUE'
                                   ? const Color(0xFFEF5350) // stronger red
-                                  : task.status == 'IN_PROGRESS'
-                                  ? const Color(0xFF64B5F6) // blue
                                   : Colors.grey.withOpacity(0.15),
                               width: 1.0,
                             ),
@@ -531,10 +529,10 @@ class _UserTaskDashboardState extends State<UserTaskDashboard> {
     final s = (status ?? '').toUpperCase();
     switch (s) {
       case 'IN_PROGRESS':
-        return 'In Progress';
+        return 'In progress';
       case 'NOT_STARTED':
       case 'TODO':
-        return 'Todo';
+        return 'Not started';
       case 'REVIEW':
         return 'Review';
       case 'OVERDUE':
@@ -742,11 +740,11 @@ class _UserTaskDashboardState extends State<UserTaskDashboard> {
 
   static const Map<String, String> _statusOptions = {
     'ALL': 'ALL',
-    'IN_PROGRESS': 'IN PROGRESS',
-    'DONE': 'DONE',
-    'TODO': 'NOT STARTED',
-    'REVIEW': 'UNDER REVIEW',
-    'OVERDUE': 'OVERDUE',
+    'IN_PROGRESS': 'In progress',
+    'DONE': 'Done',
+    'NOT_STARTED': 'Not started',
+    'REVIEW': 'Review',
+    'OVERDUE': 'Overdue',
   };
 
   static const List<String> _priorityOptions = [

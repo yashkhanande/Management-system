@@ -50,6 +50,37 @@ class Task {
         json['contributionPercent'] ??
         json['contribution'] ??
         json['contribution_percentage'];
+    final type = (json['type'] ?? '').toString().trim().toUpperCase();
+    final rawStatus = (json['status'] ?? '').toString().trim().toUpperCase();
+    final deadline = rawDeadline != null
+        ? DateTime.tryParse(rawDeadline.toString())
+        : null;
+    final progressValue = (json['progress'] ?? 0) is num
+        ? (json['progress'] as num).toInt()
+        : int.tryParse((json['progress'] ?? 0).toString()) ?? 0;
+    final completedTaskValue = (json['completedTask'] ?? 0) is num
+        ? (json['completedTask'] as num).toInt()
+        : int.tryParse((json['completedTask'] ?? 0).toString()) ?? 0;
+    final normalizedStatus = (() {
+      final now = DateTime.now();
+      final today = DateTime(now.year, now.month, now.day);
+      final deadlineDate = deadline == null
+          ? null
+          : DateTime(deadline.year, deadline.month, deadline.day);
+      final isOverdue = deadlineDate != null && deadlineDate.isBefore(today);
+
+      if (type == 'TASK') {
+        if (rawStatus == 'DONE' || rawStatus == 'COMPLETED') return 'DONE';
+        if (isOverdue) return 'OVERDUE';
+        if (rawStatus == 'REVIEW') return 'REVIEW';
+        return 'IN_PROGRESS';
+      }
+
+      if (progressValue >= 100) return 'DONE';
+      if (isOverdue) return 'OVERDUE';
+      if (completedTaskValue == 0) return 'NOT_STARTED';
+      return 'IN_PROGRESS';
+    })();
 
     return Task(
       id: json['id'],
@@ -57,23 +88,23 @@ class Task {
       description: json['description'] ?? '',
       priority: json['priority'] ?? '',
       type: json['type'],
-      status: json['status'],
+      status: normalizedStatus,
       category: json['category'] ?? json['projectCategory'],
       ownerId: json['ownerId'] ?? '',
       parentId: json['parentId'] ?? null,
-      progress: json['progress'] ?? 0,
+      progress: progressValue,
       contributionPercent: rawContribution is num
           ? rawContribution.toInt()
           : int.tryParse(rawContribution?.toString() ?? '') ?? 0,
       remark: json['remark'],
-      deadLine: rawDeadline != null
-          ? DateTime.tryParse(rawDeadline.toString())
-          : null,
+      deadLine: deadline,
       startDate: rawStartDate != null
           ? DateTime.tryParse(rawStartDate.toString())
           : null,
-      remainingTask: json['remainingTask'] ?? 0,
-      completedTask: json['completedTask'] ?? 0,
+      remainingTask: (json['remainingTask'] ?? 0) is num
+          ? (json['remainingTask'] as num).toInt()
+          : int.tryParse((json['remainingTask'] ?? 0).toString()) ?? 0,
+      completedTask: completedTaskValue,
       criticalDays: json['criticalDays'] != null
           ? (json['criticalDays'] is num
                 ? json['criticalDays'].toInt()
